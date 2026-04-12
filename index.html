@@ -1065,6 +1065,13 @@ function loadData(){
     .then(function(data){
       if(data && data.visitors){
         visitors = normalizeVisitors(data.visitors);
+        // date 필드가 혹시 Date 객체로 온 경우 문자열로 변환
+        visitors.forEach(function(v){
+          if(v.date && typeof v.date === 'object') {
+            var d = new Date(v.date);
+            v.date = d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+          }
+        });
         counter = data.counter || (visitors.length ? Math.max.apply(null, visitors.map(function(v){ return v.id; })) + 1 : 1);
         saveLocal();
         renderTable();
@@ -1163,17 +1170,17 @@ function nowTime(){
   return pad(d.getHours())+':'+pad(d.getMinutes());
 }
 function normalizeTime(t){
-  if(!t) return t;
+  if(!t) return '';
   var s = String(t);
-  // ISO 날짜 문자열 처리: "1899-12-29T15:49:08.000Z" 형식
+  // ISO 날짜 문자열 처리: "1899-12-29T15:49:08.000Z" 형식 (GS 구버전 대비 방어)
   if(s.indexOf('T') !== -1) {
     var d = new Date(s);
     return pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes());
   }
   // "9:5" → "09:05" 정규화
   var parts = s.split(':');
-  if(parts.length >= 2) return pad(parts[0]) + ':' + pad(parts[1]);
-  return t;
+  if(parts.length >= 2) return pad(parseInt(parts[0],10)) + ':' + pad(parseInt(parts[1],10));
+  return s;
 }
 function normalizeVisitors(arr){
   return arr.map(function(v){
