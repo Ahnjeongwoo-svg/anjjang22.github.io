@@ -1033,7 +1033,7 @@ function cancelCheckin(){
    아래 SCRIPT_URL에 본인의 Apps Script 웹앱 URL을 붙여넣으세요
    설정 방법은 파일 하단 주석 참고
    ===================================== */
-var SCRIPT_URL ='https://script.google.com/macros/s/AKfycbxCrUJ1owADUTdCyrU-tSeVB3DwW_LjAbtyxPSTk2bAa0nZ6fyXkYAz8TYw0uOpvVnS/exec';
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbycww1l8dWS-FAgRE1LpMCx_R1jIq0BOy8c89V8jK6vRZ5GYIR2pBZPFEAx4UY8EwLN/exec';
 
 /* ===== 로컬 백업 (오프라인 대비) ===== */
 function saveLocal(){
@@ -1085,7 +1085,19 @@ function saveCheckin(v){
   saveLocal();
   if(!SCRIPT_URL || SCRIPT_URL.indexOf('여기에') === 0) return;
   showSyncBadge('loading');
-  var params = '?action=checkin&data=' + encodeURIComponent(JSON.stringify(v));
+  var params = '?action=checkin'
+    + '&id='          + encodeURIComponent(v.id)
+    + '&date='        + encodeURIComponent(v.date)
+    + '&visittype='   + encodeURIComponent(v.visittype)
+    + '&age='         + encodeURIComponent(v.age)
+    + '&gender='      + encodeURIComponent(v.gender)
+    + '&purpose='     + encodeURIComponent(v.purpose)
+    + '&behavior='    + encodeURIComponent(v.behavior)
+    + '&emotion='     + encodeURIComponent(v.emotion)
+    + '&price='       + encodeURIComponent(v.price)
+    + '&checkinTime=' + encodeURIComponent(v.checkinTime)
+    + '&memo='        + encodeURIComponent(v.memo)
+    + '&firstword='   + encodeURIComponent(v.firstword);
   fetch(SCRIPT_URL + params, { redirect: 'follow' })
     .then(function(r){ return r.json(); })
     .then(function(){ showSyncBadge('ok'); })
