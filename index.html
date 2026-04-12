@@ -1033,7 +1033,7 @@ function cancelCheckin(){
    아래 SCRIPT_URL에 본인의 Apps Script 웹앱 URL을 붙여넣으세요
    설정 방법은 파일 하단 주석 참고
    ===================================== */
-var SCRIPT_URL = https://script.google.com/macros/s/AKfycbxCrUJ1owADUTdCyrU-tSeVB3DwW_LjAbtyxPSTk2bAa0nZ6fyXkYAz8TYw0uOpvVnS/exec';
+var SCRIPT_URL = https://script.google.com/macros/s/AKfycbxCrUJ1owADUTdCyrU-tSeVB3DwW_LjAbtyxPSTk2bAa0nZ6fyXkYAz8TYw0uOpvVnS/exec;
 
 /* ===== 로컬 백업 (오프라인 대비) ===== */
 function saveLocal(){
@@ -1054,12 +1054,13 @@ function loadLocal(){
 /* ===== Sheets: 전체 데이터 불러오기 ===== */
 function loadData(){
   if(!SCRIPT_URL || SCRIPT_URL.indexOf('여기에') === 0){
-    // URL 미설정 → 로컬만 사용
     loadLocal();
+    renderTable();
+    updateStats();
     return;
   }
   showSyncBadge('loading');
-  fetch(SCRIPT_URL + '?action=getAll')
+  fetch(SCRIPT_URL + '?action=getAll', { redirect: 'follow' })
     .then(function(r){ return r.json(); })
     .then(function(data){
       if(data && data.visitors){
@@ -1072,8 +1073,9 @@ function loadData(){
       }
     })
     .catch(function(){
-      // 네트워크 실패 시 로컬 데이터로 폴백
       loadLocal();
+      renderTable();
+      updateStats();
       showSyncBadge('error');
     });
 }
@@ -1083,13 +1085,11 @@ function saveCheckin(v){
   saveLocal();
   if(!SCRIPT_URL || SCRIPT_URL.indexOf('여기에') === 0) return;
   showSyncBadge('loading');
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: JSON.stringify({ action: 'checkin', visitor: v })
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(){ showSyncBadge('ok'); })
-  .catch(function(){ showSyncBadge('error'); });
+  var params = '?action=checkin&data=' + encodeURIComponent(JSON.stringify(v));
+  fetch(SCRIPT_URL + params, { redirect: 'follow' })
+    .then(function(r){ return r.json(); })
+    .then(function(){ showSyncBadge('ok'); })
+    .catch(function(){ showSyncBadge('error'); });
 }
 
 /* ===== Sheets: 퇴장 업데이트 ===== */
@@ -1097,13 +1097,14 @@ function saveCheckout(id, checkoutTime, rating, result){
   saveLocal();
   if(!SCRIPT_URL || SCRIPT_URL.indexOf('여기에') === 0) return;
   showSyncBadge('loading');
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: JSON.stringify({ action: 'checkout', id: id, checkoutTime: checkoutTime, rating: rating, result: result })
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(){ showSyncBadge('ok'); })
-  .catch(function(){ showSyncBadge('error'); });
+  var params = '?action=checkout&id=' + id
+    + '&checkoutTime=' + encodeURIComponent(checkoutTime)
+    + '&rating=' + (rating || '')
+    + '&result=' + encodeURIComponent(result || '');
+  fetch(SCRIPT_URL + params, { redirect: 'follow' })
+    .then(function(r){ return r.json(); })
+    .then(function(){ showSyncBadge('ok'); })
+    .catch(function(){ showSyncBadge('error'); });
 }
 
 /* ===== Sheets: 삭제 ===== */
@@ -1111,13 +1112,10 @@ function saveDelete(id){
   saveLocal();
   if(!SCRIPT_URL || SCRIPT_URL.indexOf('여기에') === 0) return;
   showSyncBadge('loading');
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: JSON.stringify({ action: 'delete', id: id })
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(){ showSyncBadge('ok'); })
-  .catch(function(){ showSyncBadge('error'); });
+  fetch(SCRIPT_URL + '?action=delete&id=' + id, { redirect: 'follow' })
+    .then(function(r){ return r.json(); })
+    .then(function(){ showSyncBadge('ok'); })
+    .catch(function(){ showSyncBadge('error'); });
 }
 
 /* ===== 동기화 상태 뱃지 ===== */
