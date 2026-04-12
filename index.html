@@ -1164,9 +1164,15 @@ function nowTime(){
 }
 function normalizeTime(t){
   if(!t) return t;
-  // "9:5" → "09:05", "9:05" → "09:05" 등 정규화
-  var parts = String(t).split(':');
-  if(parts.length === 2) return pad(parts[0]) + ':' + pad(parts[1]);
+  var s = String(t);
+  // ISO 날짜 문자열 처리: "1899-12-29T15:49:08.000Z" 형식
+  if(s.indexOf('T') !== -1) {
+    var d = new Date(s);
+    return pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes());
+  }
+  // "9:5" → "09:05" 정규화
+  var parts = s.split(':');
+  if(parts.length >= 2) return pad(parts[0]) + ':' + pad(parts[1]);
   return t;
 }
 function normalizeVisitors(arr){
