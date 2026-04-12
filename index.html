@@ -1046,7 +1046,7 @@ function loadLocal(){
   try {
     var saved = localStorage.getItem('visitorsData');
     var savedCounter = localStorage.getItem('visitorCounter');
-    if(saved) visitors = JSON.parse(saved);
+    if(saved) visitors = normalizeVisitors(JSON.parse(saved));
     if(savedCounter) counter = parseInt(savedCounter, 10);
   } catch(e){}
 }
@@ -1064,7 +1064,7 @@ function loadData(){
     .then(function(r){ return r.json(); })
     .then(function(data){
       if(data && data.visitors){
-        visitors = data.visitors;
+        visitors = normalizeVisitors(data.visitors);
         counter = data.counter || (visitors.length ? Math.max.apply(null, visitors.map(function(v){ return v.id; })) + 1 : 1);
         saveLocal();
         renderTable();
@@ -1161,6 +1161,20 @@ function padId(n){
 function nowTime(){
   var d = new Date();
   return pad(d.getHours())+':'+pad(d.getMinutes());
+}
+function normalizeTime(t){
+  if(!t) return t;
+  // "9:5" → "09:05", "9:05" → "09:05" 등 정규화
+  var parts = String(t).split(':');
+  if(parts.length === 2) return pad(parts[0]) + ':' + pad(parts[1]);
+  return t;
+}
+function normalizeVisitors(arr){
+  return arr.map(function(v){
+    v.checkinTime  = normalizeTime(v.checkinTime);
+    v.checkoutTime = normalizeTime(v.checkoutTime);
+    return v;
+  });
 }
 function todayStr(){
   var d = new Date();
