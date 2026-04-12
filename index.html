@@ -1076,6 +1076,9 @@ function loadData(){
         saveLocal();
         renderTable();
         updateStats();
+        renderStats();
+        renderFirstword();
+        renderMemo();
         showSyncBadge('ok');
       }
     })
@@ -1083,6 +1086,9 @@ function loadData(){
       loadLocal();
       renderTable();
       updateStats();
+      renderStats();
+      renderFirstword();
+      renderMemo();
       showSyncBadge('error');
     });
 }
