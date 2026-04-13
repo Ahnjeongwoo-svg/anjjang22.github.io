@@ -495,6 +495,16 @@
   /* 목록 행 클릭 커서 */
   .visitor-row-clickable { cursor: pointer; }
   .visitor-row-clickable:hover td { background: var(--accent-light) !important; }
+  .date-separator td {
+    background: var(--surface2);
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.4px;
+    border-bottom: 1px solid var(--border);
+    pointer-events: none;
+  }
 
 
   /* RATING MODAL */
@@ -832,7 +842,13 @@ function startCheckin(){
    아래 SCRIPT_URL에 본인의 Apps Script 웹앱 URL을 붙여넣으세요
    설정 방법은 파일 하단 주석 참고
    ===================================== */
-var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbycww1l8dWS-FAgRE1LpMCx_R1jIq0BOy8c89V8jK6vRZ5GYIR2pBZPFEAx4UY8EwLN/exec';
+var SCRIPT_URL  = 'https://script.google.com/macros/s/AKfycbycww1l8dWS-FAgRE1LpMCx_R1jIq0BOy8c89V8jK6vRZ5GYIR2pBZPFEAx4UY8EwLN/exec';
+/* ===== 시트 이름 설정 =====
+   같은 스프레드시트에 여러 매장을 운영할 때
+   매장(체크리스트)마다 다른 이름을 지정하세요
+   예) var SHEET_NAME = '1호점';
+   ========================== */
+var SHEET_NAME  = '방문기록';
 
 /* ===== 로컬 백업 (오프라인 대비) ===== */
 function saveLocal(){
@@ -859,7 +875,7 @@ function loadData(){
     return;
   }
   showSyncBadge('loading');
-  fetch(SCRIPT_URL + '?action=getAll', { redirect: 'follow' })
+  fetch(SCRIPT_URL + '?action=getAll&sheet=' + encodeURIComponent(SHEET_NAME), { redirect: 'follow' })
     .then(function(r){ return r.json(); })
     .then(function(data){
       if(data && data.visitors){
@@ -891,7 +907,7 @@ function saveCheckin(v){
   saveLocal();
   if(!SCRIPT_URL || SCRIPT_URL.indexOf('여기에') === 0) return;
   showSyncBadge('loading');
-  var params = '?action=checkin'
+  var params = '?action=checkin&sheet=' + encodeURIComponent(SHEET_NAME)
     + '&id='          + encodeURIComponent(v.id)
     + '&date='        + encodeURIComponent(v.date)
     + '&visittype='   + encodeURIComponent(v.visittype)
@@ -916,7 +932,7 @@ function saveVisitorUpdate(id){
   if(!v) return;
   if(!SCRIPT_URL || SCRIPT_URL.indexOf('여기에') === 0) return;
   showSyncBadge('loading');
-  var params = '?action=update'
+  var params = '?action=update&sheet=' + encodeURIComponent(SHEET_NAME)
     + '&id='           + encodeURIComponent(v.id)
     + '&visittype='    + encodeURIComponent(v.visittype)
     + '&age='          + encodeURIComponent(v.age)
@@ -940,7 +956,7 @@ function saveCheckout(id, checkoutTime, rating, result){
   saveLocal();
   if(!SCRIPT_URL || SCRIPT_URL.indexOf('여기에') === 0) return;
   showSyncBadge('loading');
-  var params = '?action=checkout&id=' + id
+  var params = '?action=checkout&sheet=' + encodeURIComponent(SHEET_NAME) + '&id=' + id
     + '&checkoutTime=' + encodeURIComponent(checkoutTime)
     + '&rating=' + (rating || '')
     + '&result=' + encodeURIComponent(result || '');
@@ -955,7 +971,7 @@ function saveDelete(id){
   saveLocal();
   if(!SCRIPT_URL || SCRIPT_URL.indexOf('여기에') === 0) return;
   showSyncBadge('loading');
-  fetch(SCRIPT_URL + '?action=delete&id=' + id, { redirect: 'follow' })
+  fetch(SCRIPT_URL + '?action=delete&sheet=' + encodeURIComponent(SHEET_NAME) + '&id=' + id, { redirect: 'follow' })
     .then(function(r){ return r.json(); })
     .then(function(){ showSyncBadge('ok'); })
     .catch(function(){ showSyncBadge('error'); });
@@ -1040,11 +1056,13 @@ function showPage(name, el){
 }
 
 function updateStats(){
-  var inC = visitors.filter(function(v){ return v.status==='in'; }).length;
-  var outC = visitors.length - inC;
+  var todayKey = statsDateKey(new Date());
+  var todayVisitors = visitors.filter(function(v){ return v.date === todayKey; });
+  var inC = todayVisitors.filter(function(v){ return v.status==='in'; }).length;
+  var outC = todayVisitors.length - inC;
   ['s-total','s-total2'].forEach(function(id){
     var el = document.getElementById(id);
-    if(el) el.textContent = visitors.length;
+    if(el) el.textContent = todayVisitors.length;
   });
   ['s-in','s-in2'].forEach(function(id){
     var el = document.getElementById(id);
@@ -1125,38 +1143,90 @@ function renderTable(){
     tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">등록된 방문자가 없습니다</div></div></td></tr>';
     return;
   }
-  tbody.innerHTML = visitors.slice().reverse().map(function(v){
-    var isIn = v.status === 'in';
-    var noInfo = !v.age && !v.purpose;
-    var badge = isIn
-      ? '<span class="badge badge-in"><span class="badge-dot"></span>방문중</span>'
-      : '<span class="badge badge-out"><span class="badge-dot"></span>퇴장</span>';
-    var actions = (isIn ? '<button class="action-btn btn-checkout" onclick="event.stopPropagation();checkout('+v.id+')">퇴장</button>' : '') +
-      '<button class="action-btn btn-del" onclick="event.stopPropagation();deleteVisitor('+v.id+')">삭제</button>';
-    var ratingVal = v.rating || '';
-    var ratingHtml = ratingVal
-      ? '<span style="color:#F5A623;font-size:14px">' + strRepeat('★', ratingVal) + '</span>'
-      : '<span style="color:var(--text-muted);font-size:13px">—</span>';
-    var resultHtml = v.result
-      ? '<span style="font-size:12px;font-weight:600;background:var(--accent-light);color:var(--accent-text);padding:3px 8px;border-radius:99px;">' + v.result + '</span>'
-      : '<span style="color:var(--text-muted);font-size:13px">—</span>';
-    var ageHtml     = v.age     || '<span style="color:var(--amber);font-size:12px;font-weight:600;">미입력</span>';
-    var genderHtml  = v.gender  || '<span style="color:var(--text-muted);font-size:12px;">—</span>';
-    var purposeHtml = v.purpose || '<span style="color:var(--amber);font-size:12px;font-weight:600;">미입력</span>';
-    var rowStyle    = noInfo ? 'background:var(--amber-light);' : '';
-    return '<tr class="visitor-row-clickable" style="'+rowStyle+'" onclick="openInfoModal('+v.id+')">'
-      +'<td style="color:var(--text-muted);font-family:\'DM Mono\',monospace;font-size:12px">'+padId(v.id)+'</td>'
-      +'<td>'+ageHtml+'</td>'
-      +'<td>'+genderHtml+'</td>'
-      +'<td>'+purposeHtml+'</td>'
-      +'<td style="font-family:\'DM Mono\',monospace">'+v.checkinTime+'</td>'
-      +'<td style="font-family:\'DM Mono\',monospace">'+(v.checkoutTime||'—')+'</td>'
-      +'<td>'+badge+'</td>'
-      +'<td>'+ratingHtml+'</td>'
-      +'<td>'+resultHtml+'</td>'
-      +'<td>'+actions+'</td>'
-      +'</tr>';
-  }).join('');
+
+  var todayKey = statsDateKey(new Date());
+
+  // 오늘 방문자만 — 최신순
+  var todayList = visitors.filter(function(v){ return v.date === todayKey; }).slice().reverse();
+
+  // 이전 날짜 방문자 — 날짜별로 묶기
+  var pastList = visitors.filter(function(v){ return v.date !== todayKey; }).slice().reverse();
+
+  // 오늘 방문자 내 넘버링: 1부터 다시
+  var todayCounter = 1;
+
+  var rows = '';
+
+  if(todayList.length){
+    // 오늘 구분선
+    rows += '<tr class="date-separator"><td colspan="10">📅 오늘 · ' + todayKey + ' (' + todayList.length + '명)</td></tr>';
+    todayList.forEach(function(v){
+      rows += makeRow(v, todayCounter++);
+    });
+  } else {
+    rows += '<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">오늘 방문자가 없습니다</div></div></td></tr>';
+  }
+
+  if(pastList.length){
+    // 날짜별로 그룹핑
+    var groups = {};
+    var groupOrder = [];
+    pastList.forEach(function(v){
+      if(!groups[v.date]){ groups[v.date] = []; groupOrder.push(v.date); }
+      groups[v.date].push(v);
+    });
+    // 중복 날짜 제거 (reverse라 같은 날짜 여러번 들어갈 수 있음)
+    var seen = {};
+    var uniqueOrder = [];
+    groupOrder.forEach(function(d){ if(!seen[d]){ seen[d]=true; uniqueOrder.push(d); } });
+
+    uniqueOrder.forEach(function(date){
+      var grp = groups[date];
+      rows += '<tr class="date-separator"><td colspan="10">📅 ' + date + ' (' + grp.length + '명)</td></tr>';
+      grp.forEach(function(v){
+        rows += makeRow(v, null); // 과거는 원래 id 표시
+      });
+    });
+  }
+
+  tbody.innerHTML = rows;
+}
+
+function makeRow(v, dayNum){
+  var isIn = v.status === 'in';
+  var noInfo = !v.age && !v.purpose;
+  var badge = isIn
+    ? '<span class="badge badge-in"><span class="badge-dot"></span>방문중</span>'
+    : '<span class="badge badge-out"><span class="badge-dot"></span>퇴장</span>';
+  var actions = (isIn ? '<button class="action-btn btn-checkout" onclick="event.stopPropagation();checkout('+v.id+')">퇴장</button>' : '') +
+    '<button class="action-btn btn-del" onclick="event.stopPropagation();deleteVisitor('+v.id+')">삭제</button>';
+  var ratingVal = v.rating || '';
+  var ratingHtml = ratingVal
+    ? '<span style="color:#F5A623;font-size:14px">' + strRepeat('★', ratingVal) + '</span>'
+    : '<span style="color:var(--text-muted);font-size:13px">—</span>';
+  var resultHtml = v.result
+    ? '<span style="font-size:12px;font-weight:600;background:var(--accent-light);color:var(--accent-text);padding:3px 8px;border-radius:99px;">' + v.result + '</span>'
+    : '<span style="color:var(--text-muted);font-size:13px">—</span>';
+  var ageHtml     = v.age     || '<span style="color:var(--amber);font-size:12px;font-weight:600;">미입력</span>';
+  var genderHtml  = v.gender  || '<span style="color:var(--text-muted);font-size:12px;">—</span>';
+  var purposeHtml = v.purpose || '<span style="color:var(--amber);font-size:12px;font-weight:600;">미입력</span>';
+  var rowStyle    = noInfo ? 'background:var(--amber-light);' : '';
+  // 오늘은 당일 순번, 과거는 전체 id
+  var numHtml = dayNum !== null
+    ? '<span style="font-weight:700;color:var(--accent);">' + padId(dayNum) + '</span>'
+    : '<span style="color:var(--text-muted);font-size:11px;">' + padId(v.id) + '</span>';
+  return '<tr class="visitor-row-clickable" style="'+rowStyle+'" onclick="openInfoModal('+v.id+')">'
+    +'<td style="font-family:\'DM Mono\',monospace;font-size:12px">'+numHtml+'</td>'
+    +'<td>'+ageHtml+'</td>'
+    +'<td>'+genderHtml+'</td>'
+    +'<td>'+purposeHtml+'</td>'
+    +'<td style="font-family:\'DM Mono\',monospace">'+v.checkinTime+'</td>'
+    +'<td style="font-family:\'DM Mono\',monospace">'+(v.checkoutTime||'—')+'</td>'
+    +'<td>'+badge+'</td>'
+    +'<td>'+ratingHtml+'</td>'
+    +'<td>'+resultHtml+'</td>'
+    +'<td>'+actions+'</td>'
+    +'</tr>';
 }
 
 /* ===== 정보 입력 모달 ===== */
