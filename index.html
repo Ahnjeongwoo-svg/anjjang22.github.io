@@ -511,6 +511,47 @@
   .stat-table-wrap .td-count { text-align: right; font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; color: var(--text); }
 
   .empty-stats { text-align: center; padding: 32px 16px; color: var(--text-muted); font-size: 14px; }
+  /* 정보 입력 모달 */
+  .info-modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding: 0;
+  }
+  .info-modal-box {
+    background: var(--surface);
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 24px 20px 32px;
+    width: 100%; max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 -4px 40px rgba(0,0,0,0.18);
+    animation: slideUpModal 0.3s cubic-bezier(0.34,1.2,0.64,1);
+  }
+  @keyframes slideUpModal {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  .info-modal-handle {
+    width: 40px; height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    margin: 0 auto 20px;
+  }
+  .info-modal-title {
+    font-size: 17px; font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .info-modal-time {
+    font-size: 13px; color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 20px;
+  }
+  /* 목록 행 클릭 커서 */
+  .visitor-row-clickable { cursor: pointer; }
+  .visitor-row-clickable:hover td { background: var(--accent-light) !important; }
+
 
   /* RATING MODAL */
   .modal-overlay {
@@ -547,7 +588,7 @@
   .modal-rating-label { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 20px; min-height: 18px; }
   .modal-btn-row { display: flex; gap: 10px; }
   .modal-btn-row .btn { flex: 1; }
-  .stats-summary {
+  .stats-summary { }
   .firstword-list { display: flex; flex-direction: column; gap: 6px; }
   .firstword-item {
     font-size: 13px;
@@ -610,119 +651,8 @@
         <span class="entrance-btn-icon">🚪</span>
         손님 입장
       </button>
-      <span class="entrance-hint">버튼을 누르면 입장 시간이 기록됩니다</span>
+      <span class="entrance-hint">버튼을 누르면 입장 시간이 기록됩니다<br>방문자 목록에서 행을 눌러 정보를 입력하세요</span>
     </div>
-
-    <!-- 체크인 폼 (입장 후 표시) -->
-    <div class="checkin-form-wrap" id="checkin-form-wrap">
-      <div style="margin-bottom:16px;">
-        <span class="entrance-time-badge" id="checkin-time-badge">
-          🕐 입장 시간: <span id="checkin-time-display">--:--</span>
-        </span>
-      </div>
-
-    <div class="card">
-      <div class="card-header">방문 정보 입력</div>
-      <div class="form-grid">
-        <div class="form-group full">
-          <label class="form-label">방문 유형</label>
-          <div class="btn-select-group" id="f-visittype-group">
-            <button type="button" class="btn-select" onclick="selectBtn('f-visittype-group',this,'신규')">신규</button>
-            <button type="button" class="btn-select" onclick="selectBtn('f-visittype-group',this,'재방')">재방</button>
-          </div>
-        </div>
-        <div class="form-group full">
-          <label class="form-label">첫마디</label>
-          <input class="form-control" type="text" id="f-firstword" placeholder="고객이 처음 한 말을 입력하세요">
-        </div>
-        <div class="form-group full">
-          <label class="form-label">나이</label>
-          <div class="btn-select-group" id="f-age-group">
-            <button type="button" class="btn-select" onclick="selectBtn('f-age-group',this,'10~20대')">10~20대</button>
-            <button type="button" class="btn-select" onclick="selectBtn('f-age-group',this,'30~40대')">30~40대</button>
-            <button type="button" class="btn-select" onclick="selectBtn('f-age-group',this,'50~60대')">50~60대</button>
-            <button type="button" class="btn-select" onclick="selectBtn('f-age-group',this,'70대 이상')">70대 이상</button>
-          </div>
-        </div>
-        <div class="form-group full">
-          <label class="form-label">성별</label>
-          <div class="btn-select-group" id="f-gender-group">
-            <button type="button" class="btn-select" onclick="selectBtn('f-gender-group',this,'남성')">남성</button>
-            <button type="button" class="btn-select" onclick="selectBtn('f-gender-group',this,'여성')">여성</button>
-          </div>
-        </div>
-        <div class="form-group full">
-          <label class="form-label">방문 목적</label>
-          <div class="btn-select-group purpose-grid" id="f-purpose-group">
-            <button type="button" class="btn-select" onclick="selectPurpose(this,'안경 새로구매')">안경 새로구매</button>
-            <button type="button" class="btn-select" onclick="selectPurpose(this,'렌즈만 교체')">렌즈만<br>교체</button>
-            <button type="button" class="btn-select" onclick="selectPurpose(this,'테만 교체')">테만 교체</button>
-            <button type="button" class="btn-select" onclick="selectPurpose(this,'선글라스 구매')">선글라스 구매</button>
-            <button type="button" class="btn-select" onclick="selectPurpose(this,'수령')">수령</button>
-            <button type="button" class="btn-select" onclick="selectPurpose(this,'피팅')">피팅</button>
-            <button type="button" class="btn-select" onclick="selectPurpose(this,'A/S')">A/S</button>
-            <button type="button" class="btn-select" onclick="selectPurpose(this,'안경 세척')">안경 세척</button>
-            <button type="button" class="btn-select" onclick="selectPurpose(this,'기성품 구매')">기성품<br>구매</button>
-            <button type="button" class="btn-select" onclick="selectPurpose(this,'기타')">기타</button>
-          </div>
-          <input class="form-control" type="text" id="f-purpose-etc" placeholder="기타 내용 입력" style="margin-top:8px;display:none;">
-        </div>
-        <div class="form-group full">
-          <label class="form-label">고객 행동 <span style="font-weight:400;color:var(--text-muted)">(복수 선택 가능)</span></label>
-          <div class="dropdown-wrap" id="behavior-dropdown-wrap">
-            <button type="button" class="dropdown-trigger" id="behavior-trigger" onclick="toggleDropdown()">
-              <span id="behavior-trigger-text" style="color:var(--text-muted)">선택하세요</span>
-              <span class="dropdown-arrow" id="behavior-arrow">▾</span>
-            </button>
-            <div class="dropdown-panel" id="behavior-panel" style="display:none;">
-              <div class="dropdown-item" onclick="toggleBehavior(this,'안경테 바로 건넴')"><span class="check-icon">✓</span>안경테 바로 건넴</div>
-              <div class="dropdown-item" onclick="toggleBehavior(this,'피팅존 이동')"><span class="check-icon">✓</span>피팅존 이동</div>
-              <div class="dropdown-item" onclick="toggleBehavior(this,'기다림')"><span class="check-icon">✓</span>기다림</div>
-              <div class="dropdown-item" onclick="toggleBehavior(this,'응대존 앉음')"><span class="check-icon">✓</span>응대존 앉음</div>
-              <div class="dropdown-item" onclick="toggleBehavior(this,'안경테 탐색')"><span class="check-icon">✓</span>안경테 탐색</div>
-              <div class="dropdown-item" onclick="toggleBehavior(this,'아는 직원 찾음')"><span class="check-icon">✓</span>아는 직원 찾음</div>
-              <div class="dropdown-item" onclick="toggleBehavior(this,'바로 질문')"><span class="check-icon">✓</span>바로 질문</div>
-              <div class="dropdown-item" onclick="toggleBehavior(this,'진행상황 관찰')"><span class="check-icon">✓</span>진행상황 관찰</div>
-              <div class="dropdown-item" onclick="toggleBehavior(this,'바로 검안')"><span class="check-icon">✓</span>바로 검안</div>
-              <div class="dropdown-item" onclick="toggleBehavior(this,'기타')"><span class="check-icon">✓</span>기타</div>
-            </div>
-          </div>
-          <input class="form-control" type="text" id="f-behavior-etc" placeholder="기타 행동 입력" style="margin-top:8px;display:none;">
-        </div>
-       </div>
- <div class="form-group full">
-          <label class="form-label">고객 감정 <span style="font-weight:400;color:var(--text-muted)">(복수 선택 가능)</span></label>
-          <div class="btn-select-group" style="flex-wrap:wrap;" id="f-emotion-group">
-            <button type="button" class="btn-select" onclick="toggleEmotionBtn(this,'급함')">급함</button>
-            <button type="button" class="btn-select" onclick="toggleEmotionBtn(this,'불안')">불안</button>
-            <button type="button" class="btn-select" onclick="toggleEmotionBtn(this,'비교중')">비교중</button>
-            <button type="button" class="btn-select" onclick="toggleEmotionBtn(this,'편안함')">편안함</button>
-            <button type="button" class="btn-select" onclick="toggleEmotionBtn(this,'가격 걱정')">가격 걱정</button>
-            <button type="button" class="btn-select" onclick="toggleEmotionBtn(this,'기대 큼')">기대 큼</button>
-            <button type="button" class="btn-select" onclick="toggleEmotionBtn(this,'그냥 해결만')">그냥 해결만</button>
-          </div>
-        </div>
-        <div class="form-group full">
-          <label class="form-label">가격 결정 순간 반응</label>
-          <div class="btn-select-group" id="f-price-group">
-            <button type="button" class="btn-select" onclick="selectBtn('f-price-group',this,'바로 결제')">바로 결제</button>
-            <button type="button" class="btn-select" onclick="selectBtn('f-price-group',this,'재방문 예약')">재방문 예약</button>
-            <button type="button" class="btn-select" onclick="selectBtn('f-price-group',this,'주저')">주저</button>
-            <button type="button" class="btn-select" onclick="selectBtn('f-price-group',this,'할인 요청')">할인 요청</button>
-            <button type="button" class="btn-select" onclick="selectBtn('f-price-group',this,'보류')">보류</button>
-          </div>
-        </div>
-        <div class="form-group full">
-          <label class="form-label">메모 (선택)</label>
-          <input class="form-control" type="text" id="f-memo" placeholder="특이사항 등">
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="cancelCheckin()">취소</button>
-        <button class="btn btn-primary" onclick="addVisitor()">✓ 체크인 등록</button>
-      </div>
-    </div>
-    </div><!-- /.checkin-form-wrap -->
   </div>
 
   <!-- 목록 페이지 -->
@@ -870,6 +800,111 @@
 
 
 
+<!-- 방문 정보 입력 모달 (목록 행 클릭 시) -->
+<div class="info-modal-overlay" id="info-modal" style="display:none;" onclick="closeInfoModal(event)">
+  <div class="info-modal-box" id="info-modal-box">
+    <div class="info-modal-handle"></div>
+    <div class="info-modal-title">방문 정보 입력</div>
+    <div class="info-modal-time" id="info-modal-time"></div>
+
+    <div class="form-group full" style="margin-bottom:14px;">
+      <label class="form-label">방문 유형</label>
+      <div class="btn-select-group" id="m-visittype-group">
+        <button type="button" class="btn-select" onclick="selectBtn('m-visittype-group',this,'신규')">신규</button>
+        <button type="button" class="btn-select" onclick="selectBtn('m-visittype-group',this,'재방')">재방</button>
+      </div>
+    </div>
+    <div class="form-group full" style="margin-bottom:14px;">
+      <label class="form-label">첫마디</label>
+      <input class="form-control" type="text" id="m-firstword" placeholder="고객이 처음 한 말">
+    </div>
+    <div class="form-group full" style="margin-bottom:14px;">
+      <label class="form-label">나이</label>
+      <div class="btn-select-group" id="m-age-group">
+        <button type="button" class="btn-select" onclick="selectBtn('m-age-group',this,'10~20대')">10~20대</button>
+        <button type="button" class="btn-select" onclick="selectBtn('m-age-group',this,'30~40대')">30~40대</button>
+        <button type="button" class="btn-select" onclick="selectBtn('m-age-group',this,'50~60대')">50~60대</button>
+        <button type="button" class="btn-select" onclick="selectBtn('m-age-group',this,'70대 이상')">70대 이상</button>
+      </div>
+    </div>
+    <div class="form-group full" style="margin-bottom:14px;">
+      <label class="form-label">성별</label>
+      <div class="btn-select-group" id="m-gender-group">
+        <button type="button" class="btn-select" onclick="selectBtn('m-gender-group',this,'남성')">남성</button>
+        <button type="button" class="btn-select" onclick="selectBtn('m-gender-group',this,'여성')">여성</button>
+      </div>
+    </div>
+    <div class="form-group full" style="margin-bottom:14px;">
+      <label class="form-label">방문 목적</label>
+      <div class="btn-select-group purpose-grid" id="m-purpose-group">
+        <button type="button" class="btn-select" onclick="selectModalPurpose(this,'안경 새로구매')">안경 새로구매</button>
+        <button type="button" class="btn-select" onclick="selectModalPurpose(this,'렌즈만 교체')">렌즈만<br>교체</button>
+        <button type="button" class="btn-select" onclick="selectModalPurpose(this,'테만 교체')">테만 교체</button>
+        <button type="button" class="btn-select" onclick="selectModalPurpose(this,'선글라스 구매')">선글라스 구매</button>
+        <button type="button" class="btn-select" onclick="selectModalPurpose(this,'수령')">수령</button>
+        <button type="button" class="btn-select" onclick="selectModalPurpose(this,'피팅')">피팅</button>
+        <button type="button" class="btn-select" onclick="selectModalPurpose(this,'A/S')">A/S</button>
+        <button type="button" class="btn-select" onclick="selectModalPurpose(this,'안경 세척')">안경 세척</button>
+        <button type="button" class="btn-select" onclick="selectModalPurpose(this,'기성품 구매')">기성품<br>구매</button>
+        <button type="button" class="btn-select" onclick="selectModalPurpose(this,'기타')">기타</button>
+      </div>
+      <input class="form-control" type="text" id="m-purpose-etc" placeholder="기타 내용 입력" style="margin-top:8px;display:none;">
+    </div>
+    <div class="form-group full" style="margin-bottom:14px;">
+      <label class="form-label">고객 행동 <span style="font-weight:400;color:var(--text-muted)">(복수 선택 가능)</span></label>
+      <div class="dropdown-wrap" id="m-behavior-dropdown-wrap">
+        <button type="button" class="dropdown-trigger" id="m-behavior-trigger" onclick="toggleModalDropdown()">
+          <span id="m-behavior-trigger-text" style="color:var(--text-muted)">선택하세요</span>
+          <span class="dropdown-arrow" id="m-behavior-arrow">▾</span>
+        </button>
+        <div class="dropdown-panel" id="m-behavior-panel" style="display:none;">
+          <div class="dropdown-item" onclick="toggleModalBehavior(this,'안경테 바로 건넴')"><span class="check-icon">✓</span>안경테 바로 건넴</div>
+          <div class="dropdown-item" onclick="toggleModalBehavior(this,'피팅존 이동')"><span class="check-icon">✓</span>피팅존 이동</div>
+          <div class="dropdown-item" onclick="toggleModalBehavior(this,'기다림')"><span class="check-icon">✓</span>기다림</div>
+          <div class="dropdown-item" onclick="toggleModalBehavior(this,'응대존 앉음')"><span class="check-icon">✓</span>응대존 앉음</div>
+          <div class="dropdown-item" onclick="toggleModalBehavior(this,'안경테 탐색')"><span class="check-icon">✓</span>안경테 탐색</div>
+          <div class="dropdown-item" onclick="toggleModalBehavior(this,'아는 직원 찾음')"><span class="check-icon">✓</span>아는 직원 찾음</div>
+          <div class="dropdown-item" onclick="toggleModalBehavior(this,'바로 질문')"><span class="check-icon">✓</span>바로 질문</div>
+          <div class="dropdown-item" onclick="toggleModalBehavior(this,'진행상황 관찰')"><span class="check-icon">✓</span>진행상황 관찰</div>
+          <div class="dropdown-item" onclick="toggleModalBehavior(this,'바로 검안')"><span class="check-icon">✓</span>바로 검안</div>
+          <div class="dropdown-item" onclick="toggleModalBehavior(this,'기타')"><span class="check-icon">✓</span>기타</div>
+        </div>
+      </div>
+      <input class="form-control" type="text" id="m-behavior-etc" placeholder="기타 행동 입력" style="margin-top:8px;display:none;">
+    </div>
+    <div class="form-group full" style="margin-bottom:14px;">
+      <label class="form-label">고객 감정 <span style="font-weight:400;color:var(--text-muted)">(복수 선택 가능)</span></label>
+      <div class="btn-select-group" style="flex-wrap:wrap;" id="m-emotion-group">
+        <button type="button" class="btn-select" onclick="toggleEmotionBtnModal(this,'급함')">급함</button>
+        <button type="button" class="btn-select" onclick="toggleEmotionBtnModal(this,'불안')">불안</button>
+        <button type="button" class="btn-select" onclick="toggleEmotionBtnModal(this,'비교중')">비교중</button>
+        <button type="button" class="btn-select" onclick="toggleEmotionBtnModal(this,'편안함')">편안함</button>
+        <button type="button" class="btn-select" onclick="toggleEmotionBtnModal(this,'가격 걱정')">가격 걱정</button>
+        <button type="button" class="btn-select" onclick="toggleEmotionBtnModal(this,'기대 큼')">기대 큼</button>
+        <button type="button" class="btn-select" onclick="toggleEmotionBtnModal(this,'그냥 해결만')">그냥 해결만</button>
+      </div>
+    </div>
+    <div class="form-group full" style="margin-bottom:14px;">
+      <label class="form-label">가격 결정 순간 반응</label>
+      <div class="btn-select-group" id="m-price-group">
+        <button type="button" class="btn-select" onclick="selectBtn('m-price-group',this,'바로 결제')">바로 결제</button>
+        <button type="button" class="btn-select" onclick="selectBtn('m-price-group',this,'재방문 예약')">재방문 예약</button>
+        <button type="button" class="btn-select" onclick="selectBtn('m-price-group',this,'주저')">주저</button>
+        <button type="button" class="btn-select" onclick="selectBtn('m-price-group',this,'할인 요청')">할인 요청</button>
+        <button type="button" class="btn-select" onclick="selectBtn('m-price-group',this,'보류')">보류</button>
+      </div>
+    </div>
+    <div class="form-group full" style="margin-bottom:20px;">
+      <label class="form-label">메모 (선택)</label>
+      <input class="form-control" type="text" id="m-memo" placeholder="특이사항 등">
+    </div>
+    <div class="modal-btn-row">
+      <button class="btn btn-ghost" onclick="closeInfoModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveVisitorInfo()">✓ 저장</button>
+    </div>
+  </div>
+</div>
+
 <!-- 평점 모달 -->
 <div class="modal-overlay" id="rating-modal" style="display:none;" onclick="closeRatingModal(event)">
   <div class="modal-box">
@@ -944,70 +979,7 @@ function getPurpose(){
 }
 
 
-function toggleDropdown(){
-  var panel = document.getElementById('behavior-panel');
-  var trigger = document.getElementById('behavior-trigger');
-  var arrow = document.getElementById('behavior-arrow');
-  var isOpen = panel.style.display !== 'none';
-  panel.style.display = isOpen ? 'none' : 'block';
-  trigger.classList.toggle('open', !isOpen);
-  arrow.classList.toggle('open', !isOpen);
-}
-
-function toggleBehavior(el, value){
-  el.classList.toggle('selected');
-  el.dataset.value = value;
-  var etcInput = document.getElementById('f-behavior-etc');
-  var showEtc = Array.from(document.querySelectorAll('#behavior-panel .dropdown-item.selected'))
-    .some(function(i){ return i.dataset.value === '기타'; });
-  etcInput.style.display = showEtc ? 'block' : 'none';
-  if(!showEtc) etcInput.value = '';
-  updateBehaviorTrigger();
-}
-
-function updateBehaviorTrigger(){
-  var selected = Array.from(document.querySelectorAll('#behavior-panel .dropdown-item.selected'))
-    .map(function(i){ return i.dataset.value || i.textContent.replace('✓','').trim(); });
-  var triggerText = document.getElementById('behavior-trigger-text');
-  if(selected.length === 0){
-    triggerText.textContent = '선택하세요';
-    triggerText.style.color = 'var(--text-muted)';
-  } else {
-    triggerText.textContent = selected.join(', ');
-    triggerText.style.color = 'var(--text)';
-  }
-}
-
-function getBehaviors(){
-  var items = document.querySelectorAll('#behavior-panel .dropdown-item.selected');
-  return Array.from(items).map(function(i){
-    var val = i.dataset.value || i.textContent.replace('✓','').trim();
-    if(val === '기타'){
-      var etc = document.getElementById('f-behavior-etc').value.trim();
-      return etc ? '기타: ' + etc : '기타';
-    }
-    return val;
-  }).join(', ');
-}
-
-function toggleEmotionBtn(el, value){
-  el.classList.toggle('selected');
-  el.dataset.value = value;
-}
-
-function getEmotions(){
-  return Array.from(document.querySelectorAll('#f-emotion-group .btn-select.selected'))
-    .map(function(b){ return b.dataset.value; }).join(', ');
-}
-
-document.addEventListener('click', function(e){
-  var bWrap = document.getElementById('behavior-dropdown-wrap');
-  if(bWrap && !bWrap.contains(e.target)){
-    document.getElementById('behavior-panel').style.display = 'none';
-    document.getElementById('behavior-trigger').classList.remove('open');
-    document.getElementById('behavior-arrow').classList.remove('open');
-  }
-});
+/* 구 체크인 폼 관련 함수 제거됨 */
 
 
 var visitors = [];
@@ -1015,18 +987,13 @@ var counter = 1;
 var checkinRecordedTime = ''; // 입장 버튼 누른 시간
 
 function startCheckin(){
-  checkinRecordedTime = nowTime();
-  document.getElementById('checkin-time-display').textContent = checkinRecordedTime;
-  document.getElementById('entrance-screen').style.display = 'none';
-  var wrap = document.getElementById('checkin-form-wrap');
-  wrap.classList.add('visible');
-}
-
-function cancelCheckin(){
-  checkinRecordedTime = '';
-  resetForm();
-  document.getElementById('checkin-form-wrap').classList.remove('visible');
-  document.getElementById('entrance-screen').style.display = '';
+  var time = nowTime();
+  var v = { id: counter++, date: statsDateKey(new Date()), visittype: '', age: '', gender: '', purpose: '', behavior: '', emotion: '', price: '', checkinTime: time, checkoutTime: '', memo: '', firstword: '', status: 'in' };
+  visitors.push(v);
+  saveCheckin(v);
+  updateStats();
+  renderTable();
+  showToast('🚪 입장 기록 완료 · ' + time + ' · 목록에서 정보를 입력하세요');
 }
 
 /* ===== Google Sheets 연동 설정 =====
@@ -1111,6 +1078,29 @@ function saveCheckin(v){
     + '&checkinTime=' + encodeURIComponent(v.checkinTime)
     + '&memo='        + encodeURIComponent(v.memo)
     + '&firstword='   + encodeURIComponent(v.firstword);
+  fetch(SCRIPT_URL + params, { redirect: 'follow' })
+    .then(function(r){ return r.json(); })
+    .then(function(){ showSyncBadge('ok'); })
+    .catch(function(){ showSyncBadge('error'); });
+}
+
+/* ===== Sheets: 방문 정보 업데이트 ===== */
+function saveVisitorUpdate(id){
+  var v = visitors.find(function(x){ return x.id === id; });
+  if(!v) return;
+  if(!SCRIPT_URL || SCRIPT_URL.indexOf('여기에') === 0) return;
+  showSyncBadge('loading');
+  var params = '?action=update'
+    + '&id='        + encodeURIComponent(v.id)
+    + '&visittype=' + encodeURIComponent(v.visittype)
+    + '&age='       + encodeURIComponent(v.age)
+    + '&gender='    + encodeURIComponent(v.gender)
+    + '&purpose='   + encodeURIComponent(v.purpose)
+    + '&behavior='  + encodeURIComponent(v.behavior)
+    + '&emotion='   + encodeURIComponent(v.emotion)
+    + '&price='     + encodeURIComponent(v.price)
+    + '&memo='      + encodeURIComponent(v.memo)
+    + '&firstword=' + encodeURIComponent(v.firstword);
   fetch(SCRIPT_URL + params, { redirect: 'follow' })
     .then(function(r){ return r.json(); })
     .then(function(){ showSyncBadge('ok'); })
@@ -1235,28 +1225,7 @@ function updateStats(){
   });
 }
 
-function addVisitor(){
-  var visittype = getSelected('f-visittype-group');
-  var age = getSelected('f-age-group');
-  var gender = getSelected('f-gender-group');
-  var purpose = getPurpose();
-  var time = checkinRecordedTime || nowTime();
-  var memo = document.getElementById('f-memo').value.trim();
-  var firstword = document.getElementById('f-firstword').value.trim();
-  var behavior = getBehaviors();
-  var emotion = getEmotions();
-  var price = getSelected('f-price-group');
-  if(!visittype||!age||!gender||!purpose){
-    showToast('⚠ 방문유형, 나이, 성별, 방문목적을 입력해주세요');
-    return;
-  }
-  var v = { id: counter++, date: statsDateKey(new Date()), visittype: visittype, age: age, gender: gender, purpose: purpose, behavior: behavior, emotion: emotion, price: price, checkinTime: time, checkoutTime: '', memo: memo, firstword: firstword, status: 'in' };
-  visitors.push(v);
-  saveCheckin(v);
-  updateStats();
-  showToast('✓ 체크인 완료! ('+gender+' '+age+')');
-  cancelCheckin();
-}
+
 
 var pendingCheckoutId = null;
 var selectedRating = 0;
@@ -1327,11 +1296,12 @@ function renderTable(){
   }
   tbody.innerHTML = visitors.slice().reverse().map(function(v){
     var isIn = v.status === 'in';
+    var noInfo = !v.age && !v.purpose;
     var badge = isIn
       ? '<span class="badge badge-in"><span class="badge-dot"></span>방문중</span>'
       : '<span class="badge badge-out"><span class="badge-dot"></span>퇴장</span>';
-    var actions = (isIn ? '<button class="action-btn btn-checkout" onclick="checkout('+v.id+')">퇴장</button>' : '') +
-      '<button class="action-btn btn-del" onclick="deleteVisitor('+v.id+')">삭제</button>';
+    var actions = (isIn ? '<button class="action-btn btn-checkout" onclick="event.stopPropagation();checkout('+v.id+')">퇴장</button>' : '') +
+      '<button class="action-btn btn-del" onclick="event.stopPropagation();deleteVisitor('+v.id+')">삭제</button>';
     var ratingVal = v.rating || '';
     var ratingHtml = ratingVal
       ? '<span style="color:#F5A623;font-size:14px">' + strRepeat('★', ratingVal) + '</span>'
@@ -1339,11 +1309,15 @@ function renderTable(){
     var resultHtml = v.result
       ? '<span style="font-size:12px;font-weight:600;background:var(--accent-light);color:var(--accent-text);padding:3px 8px;border-radius:99px;">' + v.result + '</span>'
       : '<span style="color:var(--text-muted);font-size:13px">—</span>';
-    return '<tr>'
+    var ageHtml     = v.age     || '<span style="color:var(--amber);font-size:12px;font-weight:600;">미입력</span>';
+    var genderHtml  = v.gender  || '<span style="color:var(--text-muted);font-size:12px;">—</span>';
+    var purposeHtml = v.purpose || '<span style="color:var(--amber);font-size:12px;font-weight:600;">미입력</span>';
+    var rowStyle    = noInfo ? 'background:var(--amber-light);' : '';
+    return '<tr class="visitor-row-clickable" style="'+rowStyle+'" onclick="openInfoModal('+v.id+')">'
       +'<td style="color:var(--text-muted);font-family:\'DM Mono\',monospace;font-size:12px">'+padId(v.id)+'</td>'
-      +'<td>'+v.age+'</td>'
-      +'<td>'+v.gender+'</td>'
-      +'<td>'+v.purpose+'</td>'
+      +'<td>'+ageHtml+'</td>'
+      +'<td>'+genderHtml+'</td>'
+      +'<td>'+purposeHtml+'</td>'
       +'<td style="font-family:\'DM Mono\',monospace">'+v.checkinTime+'</td>'
       +'<td style="font-family:\'DM Mono\',monospace">'+(v.checkoutTime||'—')+'</td>'
       +'<td>'+badge+'</td>'
@@ -1354,20 +1328,197 @@ function renderTable(){
   }).join('');
 }
 
-function resetForm(){
-  document.querySelectorAll('#f-visittype-group .btn-select, #f-age-group .btn-select, #f-gender-group .btn-select, #f-purpose-group .btn-select, #f-price-group .btn-select').forEach(function(b){ b.classList.remove('selected'); });
-  document.querySelectorAll('#behavior-panel .dropdown-item').forEach(function(i){ i.classList.remove('selected'); });
-  document.getElementById('behavior-panel').style.display = 'none';
-  document.getElementById('behavior-trigger').classList.remove('open');
-  document.getElementById('behavior-arrow').classList.remove('open');
-  updateBehaviorTrigger();
-  document.querySelectorAll('#f-emotion-group .btn-select').forEach(function(b){ b.classList.remove('selected'); });
-  document.getElementById('f-behavior-etc').style.display = 'none';
-  document.getElementById('f-behavior-etc').value = '';
-  document.getElementById('f-purpose-etc').style.display = 'none';
-  document.getElementById('f-purpose-etc').value = '';
-  document.getElementById('f-memo').value='';
-  document.getElementById('f-firstword').value='';
+/* ===== 정보 입력 모달 ===== */
+var editingVisitorId = null;
+
+function openInfoModal(id){
+  var v = visitors.find(function(x){ return x.id === id; });
+  if(!v) return;
+  editingVisitorId = id;
+
+  document.getElementById('info-modal-time').textContent = '입장 시간: ' + v.checkinTime;
+  document.getElementById('info-modal').style.display = 'flex';
+
+  // 기존 값 세팅
+  setModalBtn('m-visittype-group', v.visittype);
+  setModalBtn('m-age-group', v.age);
+  setModalBtn('m-gender-group', v.gender);
+  document.getElementById('m-firstword').value = v.firstword || '';
+  document.getElementById('m-memo').value = v.memo || '';
+
+  // 방문목적
+  document.querySelectorAll('#m-purpose-group .btn-select').forEach(function(b){ b.classList.remove('selected'); });
+  document.getElementById('m-purpose-etc').style.display = 'none';
+  document.getElementById('m-purpose-etc').value = '';
+  if(v.purpose){
+    var matched = false;
+    document.querySelectorAll('#m-purpose-group .btn-select').forEach(function(b){
+      var bv = b.dataset.value || b.textContent.replace(/\s+/g,' ').trim();
+      if(bv === v.purpose){ b.classList.add('selected'); b.dataset.value = v.purpose; matched = true; }
+    });
+    if(!matched && v.purpose.indexOf('기타') === 0){
+      document.querySelectorAll('#m-purpose-group .btn-select').forEach(function(b){
+        if((b.dataset.value||b.textContent.trim()) === '기타'){ b.classList.add('selected'); b.dataset.value = '기타'; }
+      });
+      document.getElementById('m-purpose-etc').style.display = 'block';
+      document.getElementById('m-purpose-etc').value = v.purpose.replace(/^기타: ?/,'');
+    }
+  }
+
+  // 행동 (복수)
+  document.querySelectorAll('#m-behavior-panel .dropdown-item').forEach(function(i){ i.classList.remove('selected'); });
+  document.getElementById('m-behavior-etc').style.display = 'none';
+  document.getElementById('m-behavior-etc').value = '';
+  if(v.behavior){
+    v.behavior.split(',').forEach(function(beh){
+      var b = beh.trim();
+      document.querySelectorAll('#m-behavior-panel .dropdown-item').forEach(function(item){
+        var iv = item.dataset.value || item.textContent.replace('✓','').trim();
+        if(iv === b || (b.indexOf('기타') === 0 && iv === '기타')){ item.classList.add('selected'); item.dataset.value = iv; }
+      });
+      if(b.indexOf('기타: ') === 0){
+        document.getElementById('m-behavior-etc').style.display = 'block';
+        document.getElementById('m-behavior-etc').value = b.replace('기타: ','');
+      }
+    });
+  }
+  updateModalBehaviorTrigger();
+
+  // 감정 (복수)
+  document.querySelectorAll('#m-emotion-group .btn-select').forEach(function(b){ b.classList.remove('selected'); });
+  if(v.emotion){
+    v.emotion.split(',').forEach(function(em){
+      var e = em.trim();
+      document.querySelectorAll('#m-emotion-group .btn-select').forEach(function(b){
+        if((b.dataset.value||b.textContent.trim()) === e){ b.classList.add('selected'); b.dataset.value = e; }
+      });
+    });
+  }
+
+  // 가격반응
+  setModalBtn('m-price-group', v.price);
+}
+
+function setModalBtn(groupId, val){
+  document.querySelectorAll('#'+groupId+' .btn-select').forEach(function(b){ b.classList.remove('selected'); });
+  if(!val) return;
+  document.querySelectorAll('#'+groupId+' .btn-select').forEach(function(b){
+    if((b.dataset.value||b.textContent.replace(/\s+/g,' ').trim()) === val){ b.classList.add('selected'); b.dataset.value = val; }
+  });
+}
+
+function closeInfoModal(e){
+  if(e && e.target !== document.getElementById('info-modal')) return;
+  document.getElementById('info-modal').style.display = 'none';
+  editingVisitorId = null;
+}
+
+function selectModalPurpose(el, value){
+  document.querySelectorAll('#m-purpose-group .btn-select').forEach(function(b){ b.classList.remove('selected'); });
+  el.classList.add('selected');
+  el.dataset.value = value;
+  var etc = document.getElementById('m-purpose-etc');
+  if(value === '기타'){ etc.style.display = 'block'; etc.focus(); }
+  else { etc.style.display = 'none'; etc.value = ''; }
+}
+
+function getModalPurpose(){
+  var sel = document.querySelector('#m-purpose-group .btn-select.selected');
+  if(!sel) return '';
+  var val = sel.dataset.value || sel.textContent.replace(/\s+/g,' ').trim();
+  if(val === '기타'){
+    var etc = document.getElementById('m-purpose-etc').value.trim();
+    return etc ? '기타: ' + etc : '';
+  }
+  return val;
+}
+
+function toggleModalDropdown(){
+  var panel = document.getElementById('m-behavior-panel');
+  var trigger = document.getElementById('m-behavior-trigger');
+  var arrow = document.getElementById('m-behavior-arrow');
+  var isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  trigger.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+}
+
+function toggleModalBehavior(el, value){
+  el.classList.toggle('selected');
+  el.dataset.value = value;
+  var etcInput = document.getElementById('m-behavior-etc');
+  var showEtc = Array.from(document.querySelectorAll('#m-behavior-panel .dropdown-item.selected'))
+    .some(function(i){ return i.dataset.value === '기타'; });
+  etcInput.style.display = showEtc ? 'block' : 'none';
+  if(!showEtc) etcInput.value = '';
+  updateModalBehaviorTrigger();
+}
+
+function updateModalBehaviorTrigger(){
+  var selected = Array.from(document.querySelectorAll('#m-behavior-panel .dropdown-item.selected'))
+    .map(function(i){ return i.dataset.value || i.textContent.replace('✓','').trim(); });
+  var triggerText = document.getElementById('m-behavior-trigger-text');
+  if(selected.length === 0){ triggerText.textContent = '선택하세요'; triggerText.style.color = 'var(--text-muted)'; }
+  else { triggerText.textContent = selected.join(', '); triggerText.style.color = 'var(--text)'; }
+}
+
+function getModalBehaviors(){
+  return Array.from(document.querySelectorAll('#m-behavior-panel .dropdown-item.selected')).map(function(i){
+    var val = i.dataset.value || i.textContent.replace('✓','').trim();
+    if(val === '기타'){ var etc = document.getElementById('m-behavior-etc').value.trim(); return etc ? '기타: '+etc : '기타'; }
+    return val;
+  }).join(', ');
+}
+
+function toggleEmotionBtnModal(el, value){
+  el.classList.toggle('selected');
+  el.dataset.value = value;
+}
+
+function getModalEmotions(){
+  return Array.from(document.querySelectorAll('#m-emotion-group .btn-select.selected'))
+    .map(function(b){ return b.dataset.value; }).join(', ');
+}
+
+document.addEventListener('click', function(e){
+  var bWrap = document.getElementById('m-behavior-dropdown-wrap');
+  if(bWrap && !bWrap.contains(e.target)){
+    document.getElementById('m-behavior-panel').style.display = 'none';
+    document.getElementById('m-behavior-trigger').classList.remove('open');
+    document.getElementById('m-behavior-arrow').classList.remove('open');
+  }
+});
+
+function saveVisitorInfo(){
+  if(editingVisitorId === null) return;
+  var age       = getSelected('m-age-group');
+  var gender    = getSelected('m-gender-group');
+  var visittype = getSelected('m-visittype-group');
+  var purpose   = getModalPurpose();
+  var behavior  = getModalBehaviors();
+  var emotion   = getModalEmotions();
+  var price     = getSelected('m-price-group');
+  var memo      = document.getElementById('m-memo').value.trim();
+  var firstword = document.getElementById('m-firstword').value.trim();
+
+  visitors.forEach(function(v){
+    if(v.id === editingVisitorId){
+      v.age = age; v.gender = gender; v.visittype = visittype;
+      v.purpose = purpose; v.behavior = behavior; v.emotion = emotion;
+      v.price = price; v.memo = memo; v.firstword = firstword;
+    }
+  });
+
+  saveLocal();
+  saveVisitorUpdate(editingVisitorId);
+  renderTable();
+  updateStats();
+  renderStats();
+  renderFirstword();
+  renderMemo();
+  document.getElementById('info-modal').style.display = 'none';
+  editingVisitorId = null;
+  showToast('✓ 정보 저장 완료');
 }
 
 
