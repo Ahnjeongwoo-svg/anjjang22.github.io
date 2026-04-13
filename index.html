@@ -630,7 +630,14 @@
   <div class="info-modal-box" id="info-modal-box">
     <div class="info-modal-handle"></div>
     <div class="info-modal-title">방문 정보 입력</div>
-    <div class="info-modal-time" id="info-modal-time"></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+      <label style="font-size:13px;font-weight:500;color:var(--text-muted);white-space:nowrap;">🕐 입장 시간</label>
+      <input type="time" id="m-checkinTime" class="form-control" style="width:auto;font-family:\'DM Mono\',monospace;font-size:15px;">
+      <span id="m-checkoutTime-wrap" style="display:none;align-items:center;gap:10px;flex:1;">
+        <label style="font-size:13px;font-weight:500;color:var(--text-muted);white-space:nowrap;">🚪 퇴장 시간</label>
+        <input type="time" id="m-checkoutTime" class="form-control" style="width:auto;font-family:\'DM Mono\',monospace;font-size:15px;">
+      </span>
+    </div>
 
     <div class="form-group full" style="margin-bottom:14px;">
       <label class="form-label">방문 유형</label>
@@ -910,16 +917,18 @@ function saveVisitorUpdate(id){
   if(!SCRIPT_URL || SCRIPT_URL.indexOf('여기에') === 0) return;
   showSyncBadge('loading');
   var params = '?action=update'
-    + '&id='        + encodeURIComponent(v.id)
-    + '&visittype=' + encodeURIComponent(v.visittype)
-    + '&age='       + encodeURIComponent(v.age)
-    + '&gender='    + encodeURIComponent(v.gender)
-    + '&purpose='   + encodeURIComponent(v.purpose)
-    + '&behavior='  + encodeURIComponent(v.behavior)
-    + '&emotion='   + encodeURIComponent(v.emotion)
-    + '&price='     + encodeURIComponent(v.price)
-    + '&memo='      + encodeURIComponent(v.memo)
-    + '&firstword=' + encodeURIComponent(v.firstword);
+    + '&id='           + encodeURIComponent(v.id)
+    + '&visittype='    + encodeURIComponent(v.visittype)
+    + '&age='          + encodeURIComponent(v.age)
+    + '&gender='       + encodeURIComponent(v.gender)
+    + '&purpose='      + encodeURIComponent(v.purpose)
+    + '&behavior='     + encodeURIComponent(v.behavior)
+    + '&emotion='      + encodeURIComponent(v.emotion)
+    + '&price='        + encodeURIComponent(v.price)
+    + '&memo='         + encodeURIComponent(v.memo)
+    + '&firstword='    + encodeURIComponent(v.firstword)
+    + '&checkinTime='  + encodeURIComponent(v.checkinTime  || '')
+    + '&checkoutTime=' + encodeURIComponent(v.checkoutTime || '');
   fetch(SCRIPT_URL + params, { redirect: 'follow' })
     .then(function(r){ return r.json(); })
     .then(function(){ showSyncBadge('ok'); })
@@ -1158,7 +1167,17 @@ function openInfoModal(id){
   if(!v) return;
   editingVisitorId = id;
 
-  document.getElementById('info-modal-time').textContent = '입장 시간: ' + v.checkinTime;
+  // 입장 시간 input 세팅
+  document.getElementById('m-checkinTime').value = v.checkinTime || '';
+  // 퇴장 시간: 퇴장된 경우만 표시
+  var coWrap = document.getElementById('m-checkoutTime-wrap');
+  if(v.checkoutTime){
+    document.getElementById('m-checkoutTime').value = v.checkoutTime;
+    coWrap.style.display = 'flex';
+  } else {
+    document.getElementById('m-checkoutTime').value = '';
+    coWrap.style.display = 'none';
+  }
   document.getElementById('info-modal').style.display = 'flex';
 
   // 기존 값 세팅
@@ -1323,11 +1342,16 @@ function saveVisitorInfo(){
   var memo      = document.getElementById('m-memo').value.trim();
   var firstword = document.getElementById('m-firstword').value.trim();
 
+  var checkinTime  = document.getElementById('m-checkinTime').value || '';
+  var checkoutTime = document.getElementById('m-checkoutTime').value || '';
+
   visitors.forEach(function(v){
     if(v.id === editingVisitorId){
       v.age = age; v.gender = gender; v.visittype = visittype;
       v.purpose = purpose; v.behavior = behavior; v.emotion = emotion;
       v.price = price; v.memo = memo; v.firstword = firstword;
+      if(checkinTime)  v.checkinTime  = checkinTime;
+      if(checkoutTime) v.checkoutTime = checkoutTime;
     }
   });
 
