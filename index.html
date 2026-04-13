@@ -434,83 +434,27 @@
   .sync-ok      { background: var(--accent-light); color: var(--accent-text); }
   .sync-error   { background: var(--danger-light); color: var(--danger); }
   /* STATS PAGE */
-  .stats-date-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px 16px;
-  }
-  .stats-date-label {
-    flex: 1;
-    text-align: center;
-    font-size: 15px;
-    font-weight: 700;
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 0.5px;
-  }
-  .date-nav-btn {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    width: 34px; height: 34px;
-    font-size: 20px;
-    cursor: pointer;
-    color: var(--text-muted);
-    display: flex; align-items: center; justify-content: center;
-    line-height: 1;
-    transition: all 0.15s;
-  }
-  .date-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .date-today-btn {
-    background: var(--accent-light);
-    border: 1px solid var(--accent);
-    border-radius: var(--radius-sm);
-    padding: 6px 14px;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--accent-text);
-    cursor: pointer;
-    font-family: 'Noto Sans KR', sans-serif;
-    transition: all 0.15s;
-  }
-  .date-today-btn:hover { background: var(--accent); color: #fff; }
+  
+  
+  
+  
+  
+  
 
-  .stats-summary {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 16px;
-  }
+  
 
-  .stat-section { margin-bottom: 16px; }
+  
 
   .stat-table-wrap table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 14px; }
-  .stat-table-wrap thead th {
-    text-align: left;
-    padding: 8px 12px;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 1.5px solid var(--border);
-  }
+  
   .stat-table-wrap thead th:last-child { text-align: right; }
-  .stat-table-wrap tbody td {
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--border);
-    vertical-align: middle;
-  }
-  .stat-table-wrap tbody tr:last-child td { border-bottom: none; }
-  .stat-table-wrap tbody tr:hover { background: var(--bg); }
-  .stat-table-wrap .td-pct { text-align: right; font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text-muted); }
-  .stat-table-wrap .td-count { text-align: right; font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; color: var(--text); }
+  
+  
+  
+  
+  
 
-  .empty-stats { text-align: center; padding: 32px 16px; color: var(--text-muted); font-size: 14px; }
+  
   /* 정보 입력 모달 */
   .info-modal-overlay {
     position: fixed; inset: 0;
@@ -588,22 +532,10 @@
   .modal-rating-label { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 20px; min-height: 18px; }
   .modal-btn-row { display: flex; gap: 10px; }
   .modal-btn-row .btn { flex: 1; }
-  .stats-summary { }
-  .firstword-list { display: flex; flex-direction: column; gap: 6px; }
-  .firstword-item {
-    font-size: 13px;
-    padding: 8px 10px;
-    background: var(--surface2);
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    line-height: 1.5;
-  }
-  .firstword-item .fw-meta {
-    font-size: 11px;
-    color: var(--text-muted);
-    margin-top: 2px;
-    font-family: 'DM Mono', monospace;
-  }
+  
+  
+  
+  
 
 </style>
 </head>
@@ -620,10 +552,7 @@
   <div class="tabs">
     <button class="tab active" onclick="showPage('checkin',this)">체크인</button>
     <button class="tab" onclick="showPage('list',this)">방문자 목록</button>
-    <button class="tab" onclick="showPage('stats',this)">통계</button>
-    <button class="tab" onclick="showPage('firstword',this)">첫마디</button>
-    <button class="tab" onclick="showPage('memo',this)">메모</button>
-  </div>
+              </div>
 </div>
 
 <div class="main">
@@ -696,111 +625,7 @@
 
 
 
-  <!-- 통계 페이지 -->
-  <div class="page" id="page-stats">
-
-    <!-- 날짜 선택 -->
-    <div class="stats-date-bar">
-      <button class="date-nav-btn" onclick="statsDateOffset(-1)">&#8249;</button>
-      <span class="stats-date-label" id="stats-date-label"></span>
-      <button class="date-nav-btn" onclick="statsDateOffset(1)">&#8250;</button>
-      <button class="date-today-btn" onclick="statsGoToday()">오늘</button>
-    </div>
-
-    <!-- 요약 카드 -->
-    <div class="stats-summary" id="stats-summary"></div>
-
-    <!-- 방문 유형 -->
-    <div class="card stat-section">
-      <div class="card-header">방문 유형</div>
-      <div class="stat-table-wrap" id="stat-visittype"></div>
-    </div>
-
-    <!-- 나이대 -->
-    <div class="card stat-section">
-      <div class="card-header">나이대</div>
-      <div class="stat-table-wrap" id="stat-age"></div>
-    </div>
-
-    <!-- 성별 -->
-    <div class="card stat-section">
-      <div class="card-header">성별</div>
-      <div class="stat-table-wrap" id="stat-gender"></div>
-    </div>
-
-    <!-- 방문목적 -->
-    <div class="card stat-section">
-      <div class="card-header">방문 목적</div>
-      <div class="stat-table-wrap" id="stat-purpose"></div>
-    </div>
-
-    <!-- 고객 행동 -->
-    <div class="card stat-section">
-      <div class="card-header">고객 행동</div>
-      <div class="stat-table-wrap" id="stat-behavior"></div>
-    </div>
-
-    <!-- 고객 감정 -->
-    <div class="card stat-section">
-      <div class="card-header">고객 감정</div>
-      <div class="stat-table-wrap" id="stat-emotion"></div>
-    </div>
-
-    <!-- 가격 반응 -->
-    <div class="card stat-section">
-      <div class="card-header">가격 결정 순간 반응</div>
-      <div class="stat-table-wrap" id="stat-price"></div>
-    </div>
-
-    <!-- 평점 -->
-    <div class="card stat-section">
-      <div class="card-header">평점</div>
-      <div class="stat-table-wrap" id="stat-rating"></div>
-    </div>
-
-    <!-- 결과 -->
-    <div class="card stat-section">
-      <div class="card-header">결과</div>
-      <div class="stat-table-wrap" id="stat-result"></div>
-    </div>
-
-  </div>
-
-  <!-- 첫마디 페이지 -->
-  <div class="page" id="page-firstword">
-    <div class="stats-date-bar">
-      <button class="date-nav-btn" onclick="fwDateOffset(-1)">&#8249;</button>
-      <span class="stats-date-label" id="fw-date-label"></span>
-      <button class="date-nav-btn" onclick="fwDateOffset(1)">&#8250;</button>
-      <button class="date-today-btn" onclick="fwGoToday()">오늘</button>
-    </div>
-    <div class="card stat-section" style="padding:0;overflow:hidden;">
-      <div style="padding:16px 20px 0;">
-        <div class="card-header" style="margin-bottom:0;">첫마디 목록</div>
-      </div>
-      <div id="fw-list-wrap" style="padding:16px 20px;"></div>
-    </div>
-  </div>
-
-  <!-- 메모 페이지 -->
-  <div class="page" id="page-memo">
-    <div class="stats-date-bar">
-      <button class="date-nav-btn" onclick="memoDateOffset(-1)">&#8249;</button>
-      <span class="stats-date-label" id="memo-date-label"></span>
-      <button class="date-nav-btn" onclick="memoDateOffset(1)">&#8250;</button>
-      <button class="date-today-btn" onclick="memoGoToday()">오늘</button>
-    </div>
-    <div class="card stat-section" style="padding:0;overflow:hidden;">
-      <div style="padding:16px 20px 0;">
-        <div class="card-header" style="margin-bottom:0;">특이사항 메모</div>
-      </div>
-      <div id="memo-list-wrap" style="padding:16px 20px;"></div>
-    </div>
-  </div>
-
-
-
-<!-- 방문 정보 입력 모달 (목록 행 클릭 시) -->
+  <!-- 방문 정보 입력 모달 (목록 행 클릭 시) -->
 <div class="info-modal-overlay" id="info-modal" style="display:none;" onclick="closeInfoModal(event)">
   <div class="info-modal-box" id="info-modal-box">
     <div class="info-modal-handle"></div>
@@ -1043,9 +868,6 @@ function loadData(){
         saveLocal();
         renderTable();
         updateStats();
-        renderStats();
-        renderFirstword();
-        renderMemo();
         showSyncBadge('ok');
       }
     })
@@ -1053,9 +875,6 @@ function loadData(){
       loadLocal();
       renderTable();
       updateStats();
-      renderStats();
-      renderFirstword();
-      renderMemo();
       showSyncBadge('error');
     });
 }
@@ -1146,6 +965,9 @@ function pad(n){
   var s = String(n);
   return s.length < 2 ? '0' + s : s;
 }
+function statsDateKey(d){
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
 function strRepeat(str, n){
   var r = '';
   for(var i = 0; i < n; i++) r += str;
@@ -1196,9 +1018,6 @@ window.onload = function(){
   loadLocal();
   renderTable();
   updateStats();
-  renderStats();
-  renderFirstword();
-  renderMemo();
   // 2) 이후 Sheets에서 최신 데이터 받아서 덮어씀
   loadData();
 };
@@ -1209,9 +1028,6 @@ function showPage(name, el){
   document.getElementById('page-'+name).classList.add('active');
   el.classList.add('active');
   if(name==='list'){ renderTable(); updateStats(); }
-  if(name==='stats'){ statsDateObj = new Date(); renderStats(); }
-  if(name==='firstword'){ fwDateObj = new Date(); renderFirstword(); }
-  if(name==='memo'){ memoDateObj = new Date(); renderMemo(); }
 }
 
 function updateStats(){
@@ -1519,9 +1335,6 @@ function saveVisitorInfo(){
   saveVisitorUpdate(editingVisitorId);
   renderTable();
   updateStats();
-  renderStats();
-  renderFirstword();
-  renderMemo();
   document.getElementById('info-modal').style.display = 'none';
   editingVisitorId = null;
   showToast('✓ 정보 저장 완료');
@@ -1530,210 +1343,23 @@ function saveVisitorInfo(){
 
 
 /* ===== STATISTICS ===== */
-var statsDateObj = new Date();
 
-function statsDateKey(d) {
-  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
-}
 
-function statsDateDisplay(d) {
-  var days = ['일','월','화','수','목','금','토'];
-  return d.getFullYear() + '.' + pad(d.getMonth()+1) + '.' + pad(d.getDate()) + ' (' + days[d.getDay()] + ')';
-}
 
-function statsDateOffset(n) {
-  statsDateObj.setDate(statsDateObj.getDate() + n);
-  renderStats();
-}
 
-function statsGoToday() {
-  statsDateObj = new Date();
-  renderStats();
-}
 
-function countField(records, fieldGetter) {
-  var map = {};
-  records.forEach(function(v) {
-    var vals = fieldGetter(v);
-    if (!vals) return;
-    vals.split(',').forEach(function(raw) {
-      var k = raw.trim();
-      if (!k) return;
-      map[k] = (map[k] || 0) + 1;
-    });
-  });
-  return map;
-}
 
-function renderStatBlock(tableId, map, total) {
-  var entries = objEntries(map).sort(function(a,b){ return b[1]-a[1]; });
-  if (!entries.length) {
-    document.getElementById(tableId).innerHTML = '<div class="empty-stats">데이터 없음</div>';
-    return;
-  }
-  var tableHtml = '<table><thead><tr><th>항목</th><th style="text-align:right">건수</th><th style="text-align:right">비율</th></tr></thead><tbody>';
-  entries.forEach(function(e) {
-    var pct = total ? Math.round(e[1]/total*100) : 0;
-    tableHtml += '<tr>'
-      + '<td>' + e[0] + '</td>'
-      + '<td class="td-count">' + e[1] + '</td>'
-      + '<td class="td-pct">' + pct + '%</td>'
-      + '</tr>';
-  });
-  tableHtml += '</tbody></table>';
-  document.getElementById(tableId).innerHTML = tableHtml;
-}
 
-function renderStats() {
-  var dateKey = statsDateKey(statsDateObj);
-  document.getElementById('stats-date-label').textContent = statsDateDisplay(statsDateObj);
-
-  // allVisitors에서 날짜 필터 — date 필드 기준
-  var rec = visitors.filter(function(v){ return v.date === dateKey; });
-  var total = rec.length;
-
-  // 요약
-  var inC = rec.filter(function(v){ return v.status==='in'; }).length;
-  var outC = total - inC;
-  document.getElementById('stats-summary').innerHTML =
-    '<div class="stat-card"><div class="stat-num">'+total+'</div><div class="stat-label">총 방문</div></div>'
-    +'<div class="stat-card green"><div class="stat-num" style="color:var(--accent)">'+inC+'</div><div class="stat-label">방문중</div></div>'
-    +'<div class="stat-card gray"><div class="stat-num" style="color:var(--text-muted)">'+outC+'</div><div class="stat-label">퇴장</div></div>';
-
-  if (!total) {
-    ['stat-visittype','stat-age','stat-gender','stat-purpose','stat-behavior','stat-emotion','stat-price','stat-rating','stat-result'].forEach(function(id){
-      document.getElementById(id).innerHTML = '<div class="empty-stats">이 날짜의 데이터가 없습니다</div>';
-    });
-    return;
-  }
-
-  renderStatBlock('stat-visittype', countField(rec, function(v){ return v.visittype; }), total);
-  renderStatBlock('stat-age',      countField(rec, function(v){ return v.age; }),      total);
-  renderStatBlock('stat-gender',   countField(rec, function(v){ return v.gender; }),   total);
-  renderStatBlock('stat-purpose',  countField(rec, function(v){ return v.purpose; }),  total);
-  renderStatBlock('stat-behavior', countField(rec, function(v){ return v.behavior; }), total);
-  renderStatBlock('stat-emotion',  countField(rec, function(v){ return v.emotion; }),  total);
-  renderStatBlock('stat-price',    countField(rec, function(v){ return v.price; }),     total);
-
-  // 평점 통계
-  var ratingLabels = {1:'★ (1점)', 2:'★★ (2점)', 3:'★★★ (3점)', 4:'★★★★ (4점)', 5:'★★★★★ (5점)'};
-  var ratingMap = {};
-  var ratingSum = 0, ratingCount = 0;
-  rec.forEach(function(v){
-    if(v.rating){
-      var key = ratingLabels[v.rating] || v.rating+'점';
-      ratingMap[key] = (ratingMap[key]||0) + 1;
-      ratingSum += Number(v.rating);
-      ratingCount++;
-    }
-  });
-  if(ratingCount){
-    var avg = (ratingSum/ratingCount).toFixed(1);
-    var avgHtml = '<div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">평균 평점: <strong style="color:var(--text);font-size:15px;">'+avg+'점</strong> <span style="color:#F5A623">'+strRepeat('★',Math.round(avg))+'</span> ('+ratingCount+'명 응답)</div>';
-    var entries = [5,4,3,2,1].filter(function(n){ return ratingMap[ratingLabels[n]]; }).map(function(n){ return [ratingLabels[n], ratingMap[ratingLabels[n]]]; });
-    var tableHtml = avgHtml + '<table><thead><tr><th>평점</th><th style="text-align:right">건수</th><th style="text-align:right">비율</th></tr></thead><tbody>';
-    entries.forEach(function(e){
-      var pct = Math.round(e[1]/ratingCount*100);
-      tableHtml += '<tr><td style="color:#F5A623">'+e[0]+'</td><td class="td-count">'+e[1]+'</td><td class="td-pct">'+pct+'%</td></tr>';
-    });
-    tableHtml += '</tbody></table>';
-    document.getElementById('stat-rating').innerHTML = tableHtml;
-  } else {
-    document.getElementById('stat-rating').innerHTML = '<div class="empty-stats">평점 데이터 없음</div>';
-  }
-
-  // 결과 통계
-  renderStatBlock('stat-result', countField(rec, function(v){ return v.result || ''; }), total);
-}
 
 /* ===== FIRSTWORD PAGE ===== */
-var fwDateObj = new Date();
 
-function fwDateOffset(n){
-  fwDateObj.setDate(fwDateObj.getDate() + n);
-  renderFirstword();
-}
 
-function fwGoToday(){
-  fwDateObj = new Date();
-  renderFirstword();
-}
 
-function renderFirstword(){
-  var dateKey = statsDateKey(fwDateObj);
-  document.getElementById('fw-date-label').textContent = statsDateDisplay(fwDateObj);
-  var rec = visitors.filter(function(v){ return v.date === dateKey && v.firstword; });
-  var wrap = document.getElementById('fw-list-wrap');
-  if(!rec.length){
-    wrap.innerHTML = '<div class="empty-stats">이 날짜의 첫마디 데이터가 없습니다</div>';
-    return;
-  }
-  var thStyle = 'text-align:left;padding:8px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1.5px solid var(--border);';
-  wrap.innerHTML =
-    '<table style="width:100%;border-collapse:collapse;font-size:14px;">'
-    + '<thead><tr>'
-    + '<th style="'+thStyle+'">#</th>'
-    + '<th style="'+thStyle+'">첫마디</th>'
-    + '<th style="'+thStyle+'">시간</th>'
-    + '<th style="'+thStyle+'">구분</th>'
-    + '<th style="'+thStyle+'">고객</th>'
-    + '</tr></thead><tbody>'
-    + rec.map(function(v, i){
-        var last = i === rec.length - 1;
-        var border = last ? '' : 'border-bottom:1px solid var(--border);';
-        return '<tr>'
-          + '<td style="padding:12px;'+border+'color:var(--text-muted);font-family:\'DM Mono\',monospace;font-size:12px;">'+padId(v.id)+'</td>'
-          + '<td style="padding:12px;'+border+'font-weight:500;">"' + v.firstword + '"</td>'
-          + '<td style="padding:12px;'+border+'font-family:\'DM Mono\',monospace;font-size:13px;color:var(--text-muted);white-space:nowrap;">' + v.checkinTime + '</td>'
-          + '<td style="padding:12px;'+border+'color:var(--text-muted);font-size:13px;white-space:nowrap;">' + v.gender + ' · ' + v.age + '</td>'
-          + '</tr>';
-      }).join('')
-    + '</tbody></table>';
-}
 
 /* ===== MEMO PAGE ===== */
-var memoDateObj = new Date();
 
-function memoDateOffset(n){
-  memoDateObj.setDate(memoDateObj.getDate() + n);
-  renderMemo();
-}
 
-function memoGoToday(){
-  memoDateObj = new Date();
-  renderMemo();
-}
 
-function renderMemo(){
-  var dateKey = statsDateKey(memoDateObj);
-  document.getElementById('memo-date-label').textContent = statsDateDisplay(memoDateObj);
-  var rec = visitors.filter(function(v){ return v.date === dateKey && v.memo; });
-  var wrap = document.getElementById('memo-list-wrap');
-  if(!rec.length){
-    wrap.innerHTML = '<div class="empty-stats">이 날짜의 메모 데이터가 없습니다</div>';
-    return;
-  }
-  var thStyle = 'text-align:left;padding:8px 12px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1.5px solid var(--border);';
-  wrap.innerHTML =
-    '<table style="width:100%;border-collapse:collapse;font-size:14px;">'
-    + '<thead><tr>'
-    + '<th style="'+thStyle+'">#</th>'
-    + '<th style="'+thStyle+'">메모</th>'
-    + '<th style="'+thStyle+'">시간</th>'
-    + '<th style="'+thStyle+'">고객</th>'
-    + '</tr></thead><tbody>'
-    + rec.map(function(v, i){
-        var last = i === rec.length - 1;
-        var border = last ? '' : 'border-bottom:1px solid var(--border);';
-        return '<tr>'
-          + '<td style="padding:12px;'+border+'color:var(--text-muted);font-family:\'DM Mono\',monospace;font-size:12px;">'+padId(v.id)+'</td>'
-          + '<td style="padding:12px;'+border+'font-weight:500;">' + v.memo + '</td>'
-          + '<td style="padding:12px;'+border+'font-family:\'DM Mono\',monospace;font-size:13px;color:var(--text-muted);white-space:nowrap;">' + v.checkinTime + '</td>'
-          + '<td style="padding:12px;'+border+'color:var(--text-muted);font-size:13px;white-space:nowrap;">' + v.gender + ' · ' + v.age + '</td>'
-          + '</tr>';
-      }).join('')
-    + '</tbody></table>';
-}
 
 var toastTimer;
 function showToast(msg){
