@@ -1191,10 +1191,16 @@ function todayStr(){
 }
 
 window.onload = function(){
-  loadData();
   document.getElementById('header-date').textContent = todayStr();
+  // 1) 먼저 로컬 캐시로 즉시 렌더 (모든 탭)
+  loadLocal();
   renderTable();
   updateStats();
+  renderStats();
+  renderFirstword();
+  renderMemo();
+  // 2) 이후 Sheets에서 최신 데이터 받아서 덮어씀
+  loadData();
 };
 
 function showPage(name, el){
