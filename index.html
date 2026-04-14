@@ -882,9 +882,9 @@ var checkinRecordedTime = ''; // 입장 버튼 누른 시간
 function startCheckin(){
   var time = nowTime();
   var today = statsDateKey(new Date());
-  var todayCount = visitors.filter(function(x){ return x.date === today; }).length + 1;
-  var v = { id: counter++, date: today, dayNum: todayCount, visittype: '', age: '', gender: '', purpose: '', behavior: '', emotion: '', price: '', checkinTime: time, checkoutTime: '', memo: '', firstword: '', status: 'in' };
+  var v = { id: counter++, date: today, dayNum: 0, visittype: '', age: '', gender: '', purpose: '', behavior: '', emotion: '', price: '', checkinTime: time, checkoutTime: '', memo: '', firstword: '', status: 'in' };
   visitors.push(v);
+  visitors = normalizeVisitors(visitors); // dayNum 전체 재계산
   saveCheckin(v);
   updateStats();
   renderTable();
@@ -1085,12 +1085,21 @@ function normalizeDate(d){
 }
 
 function normalizeVisitors(arr){
-  return arr.map(function(v){
+  // 날짜/시간 정규화
+  arr = arr.map(function(v){
     v.date         = normalizeDate(v.date);
     v.checkinTime  = normalizeTime(v.checkinTime);
     v.checkoutTime = normalizeTime(v.checkoutTime);
     return v;
   });
+  // dayNum: id 오름차순 기준으로 날짜별 순번 재계산 (항상 클라이언트에서 결정)
+  var sorted = arr.slice().sort(function(a, b){ return a.id - b.id; });
+  var dateCounters = {};
+  sorted.forEach(function(v){
+    if(!dateCounters[v.date]) dateCounters[v.date] = 0;
+    v.dayNum = ++dateCounters[v.date];
+  });
+  return arr;
 }
 function todayStr(){
   var d = new Date();
