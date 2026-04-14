@@ -1251,9 +1251,9 @@ function renderTable(){
   var nextBtn = document.getElementById('list-date-next');
   if(nextBtn) nextBtn.disabled = isToday;
 
-  // 해당 날짜 방문자만 — id 오름차순
+  // 해당 날짜 방문자만 — id 내림차순 (높은 번호가 위)
   var dayList = visitors.filter(function(v){ return v.date === listKey; })
-                        .slice().sort(function(a,b){ return a.id - b.id; });
+                        .slice().sort(function(a,b){ return b.id - a.id; });
 
   if(!dayList.length){
     tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">'
