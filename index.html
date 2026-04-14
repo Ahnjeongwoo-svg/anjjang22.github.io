@@ -880,13 +880,6 @@ function loadData(){
     .then(function(data){
       if(data && data.visitors){
         visitors = normalizeVisitors(data.visitors);
-        // date 필드가 혹시 Date 객체로 온 경우 문자열로 변환
-        visitors.forEach(function(v){
-          if(v.date && typeof v.date === 'object') {
-            var d = new Date(v.date);
-            v.date = d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
-          }
-        });
         counter = data.counter || (visitors.length ? Math.max.apply(null, visitors.map(function(v){ return v.id; })) + 1 : 1);
         saveLocal();
         renderTable();
@@ -1025,8 +1018,22 @@ function normalizeTime(t){
   if(parts.length >= 2) return pad(parseInt(parts[0],10)) + ':' + pad(parseInt(parts[1],10));
   return s;
 }
+function normalizeDate(d){
+  if(!d) return '';
+  var s = String(d).trim();
+  // 이미 YYYY-MM-DD 형식이면 그대로
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  // "Tue Apr 14 2026 ..." 같은 Date.toString() 형식 파싱
+  var parsed = new Date(s);
+  if(!isNaN(parsed.getTime())){
+    return parsed.getFullYear()+'-'+pad(parsed.getMonth()+1)+'-'+pad(parsed.getDate());
+  }
+  return s;
+}
+
 function normalizeVisitors(arr){
   return arr.map(function(v){
+    v.date         = normalizeDate(v.date);
     v.checkinTime  = normalizeTime(v.checkinTime);
     v.checkoutTime = normalizeTime(v.checkoutTime);
     return v;
