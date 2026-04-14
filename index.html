@@ -830,7 +830,9 @@ var checkinRecordedTime = ''; // 입장 버튼 누른 시간
 
 function startCheckin(){
   var time = nowTime();
-  var v = { id: counter++, date: statsDateKey(new Date()), visittype: '', age: '', gender: '', purpose: '', behavior: '', emotion: '', price: '', checkinTime: time, checkoutTime: '', memo: '', firstword: '', status: 'in' };
+  var today = statsDateKey(new Date());
+  var todayCount = visitors.filter(function(x){ return x.date === today; }).length + 1;
+  var v = { id: counter++, date: today, dayNum: todayCount, visittype: '', age: '', gender: '', purpose: '', behavior: '', emotion: '', price: '', checkinTime: time, checkoutTime: '', memo: '', firstword: '', status: 'in' };
   visitors.push(v);
   saveCheckin(v);
   updateStats();
@@ -1160,38 +1162,31 @@ function renderTable(){
   var pastList = visitors.filter(function(v){ return v.date !== todayKey; }).slice().reverse();
 
   // 오늘 방문자 내 넘버링: 1부터 다시
-  var todayCounter = 1;
-
   var rows = '';
 
   if(todayList.length){
-    // 오늘 구분선
     rows += '<tr class="date-separator"><td colspan="10">📅 오늘 · ' + todayKey + ' (' + todayList.length + '명)</td></tr>';
     todayList.forEach(function(v){
-      rows += makeRow(v, todayCounter++);
+      rows += makeRow(v, v.dayNum || null);
     });
   } else {
     rows += '<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">오늘 방문자가 없습니다</div></div></td></tr>';
   }
 
   if(pastList.length){
-    // 날짜별로 그룹핑
+    // 날짜별로 그룹핑 (날짜 내림차순)
     var groups = {};
-    var groupOrder = [];
     pastList.forEach(function(v){
-      if(!groups[v.date]){ groups[v.date] = []; groupOrder.push(v.date); }
+      if(!groups[v.date]) groups[v.date] = [];
       groups[v.date].push(v);
     });
-    // 중복 날짜 제거 (reverse라 같은 날짜 여러번 들어갈 수 있음)
-    var seen = {};
-    var uniqueOrder = [];
-    groupOrder.forEach(function(d){ if(!seen[d]){ seen[d]=true; uniqueOrder.push(d); } });
+    var uniqueDates = Object.keys(groups).sort(function(a,b){ return b > a ? 1 : -1; });
 
-    uniqueOrder.forEach(function(date){
+    uniqueDates.forEach(function(date){
       var grp = groups[date];
       rows += '<tr class="date-separator"><td colspan="10">📅 ' + date + ' (' + grp.length + '명)</td></tr>';
       grp.forEach(function(v){
-        rows += makeRow(v, null); // 과거는 원래 id 표시
+        rows += makeRow(v, v.dayNum || null);
       });
     });
   }
