@@ -495,6 +495,50 @@
   /* 목록 행 클릭 커서 */
   .visitor-row-clickable { cursor: pointer; }
   .visitor-row-clickable:hover td { background: var(--accent-light) !important; }
+  .list-date-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+  }
+  .list-date-label {
+    flex: 1;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.3px;
+  }
+  .list-date-nav {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    width: 34px; height: 34px;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+    transition: all 0.15s;
+  }
+  .list-date-nav:hover { border-color: var(--accent); color: var(--accent); }
+  .list-date-nav:disabled { opacity: 0.3; cursor: default; }
+  .list-today-btn {
+    background: var(--accent-light);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent-text);
+    cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: all 0.15s;
+  }
   .date-separator td {
     background: var(--surface2);
     padding: 7px 14px;
@@ -596,18 +640,25 @@
 
   <!-- 목록 페이지 -->
   <div class="page" id="page-list">
+    <!-- 날짜 네비게이션 -->
+    <div class="list-date-bar">
+      <button class="list-date-nav" onclick="listDateOffset(-1)">&#8249;</button>
+      <span class="list-date-label" id="list-date-label"></span>
+      <button class="list-date-nav" onclick="listDateOffset(1)" id="list-date-next">&#8250;</button>
+      <button class="list-today-btn" onclick="listGoToday()">오늘</button>
+    </div>
     <div class="stats">
       <div class="stat-card">
         <div class="stat-num" id="s-total2">0</div>
-        <div class="stat-label">오늘 방문</div>
+        <div class="stat-label" id="s-total2-label">방문</div>
       </div>
       <div class="stat-card green">
         <div class="stat-num" id="s-in2">0</div>
-        <div class="stat-label">현재 방문중</div>
+        <div class="stat-label">방문중</div>
       </div>
       <div class="stat-card gray">
         <div class="stat-num" id="s-out2">0</div>
-        <div class="stat-label">퇴장 완료</div>
+        <div class="stat-label">퇴장</div>
       </div>
     </div>
     <div class="card" style="padding:0; overflow:hidden;">
@@ -830,7 +881,9 @@ var checkinRecordedTime = ''; // 입장 버튼 누른 시간
 
 function startCheckin(){
   var time = nowTime();
-  var v = { id: counter++, date: statsDateKey(new Date()), visittype: '', age: '', gender: '', purpose: '', behavior: '', emotion: '', price: '', checkinTime: time, checkoutTime: '', memo: '', firstword: '', status: 'in' };
+  var today = statsDateKey(new Date());
+  var todayCount = visitors.filter(function(x){ return x.date === today; }).length + 1;
+  var v = { id: counter++, date: today, dayNum: todayCount, visittype: '', age: '', gender: '', purpose: '', behavior: '', emotion: '', price: '', checkinTime: time, checkoutTime: '', memo: '', firstword: '', status: 'in' };
   visitors.push(v);
   saveCheckin(v);
   updateStats();
@@ -1044,6 +1097,26 @@ function todayStr(){
   return d.getFullYear()+'.'+(d.getMonth()+1)+'.'+d.getDate()+' ('+['일','월','화','수','목','금','토'][d.getDay()]+')';
 }
 
+/* ===== 목록 날짜 네비게이션 ===== */
+var listDateObj = new Date();
+
+function listDateOffset(n){
+  // 미래 날짜는 오늘까지만
+  var next = new Date(listDateObj);
+  next.setDate(next.getDate() + n);
+  var todayKey = statsDateKey(new Date());
+  if(statsDateKey(next) > todayKey) return;
+  listDateObj = next;
+  renderTable();
+  updateStats();
+}
+
+function listGoToday(){
+  listDateObj = new Date();
+  renderTable();
+  updateStats();
+}
+
 window.onload = function(){
   document.getElementById('header-date').textContent = todayStr();
   // 1) 먼저 로컬 캐시로 즉시 렌더 (모든 탭)
@@ -1059,26 +1132,33 @@ function showPage(name, el){
   document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
   document.getElementById('page-'+name).classList.add('active');
   el.classList.add('active');
-  if(name==='list'){ renderTable(); updateStats(); }
+  if(name==='list'){ listDateObj = new Date(); renderTable(); updateStats(); }
 }
 
 function updateStats(){
   var todayKey = statsDateKey(new Date());
   var todayVisitors = visitors.filter(function(v){ return v.date === todayKey; });
-  var inC = todayVisitors.filter(function(v){ return v.status==='in'; }).length;
+  var inC  = todayVisitors.filter(function(v){ return v.status==='in'; }).length;
   var outC = todayVisitors.length - inC;
-  ['s-total','s-total2'].forEach(function(id){
+  // 체크인 탭 상단 — 항상 오늘 기준
+  ['s-total','s-in','s-out'].forEach(function(id){
     var el = document.getElementById(id);
-    if(el) el.textContent = todayVisitors.length;
+    if(!el) return;
+    if(id==='s-total') el.textContent = todayVisitors.length;
+    if(id==='s-in')    el.textContent = inC;
+    if(id==='s-out')   el.textContent = outC;
   });
-  ['s-in','s-in2'].forEach(function(id){
-    var el = document.getElementById(id);
-    if(el) el.textContent = inC;
-  });
-  ['s-out','s-out2'].forEach(function(id){
-    var el = document.getElementById(id);
-    if(el) el.textContent = outC;
-  });
+  // 목록 탭 상단 — listDateObj 기준
+  var listKey = statsDateKey(listDateObj);
+  var listVisitors = visitors.filter(function(v){ return v.date === listKey; });
+  var listIn  = listVisitors.filter(function(v){ return v.status==='in'; }).length;
+  var listOut = listVisitors.length - listIn;
+  var el2 = document.getElementById('s-total2');
+  var el3 = document.getElementById('s-in2');
+  var el4 = document.getElementById('s-out2');
+  if(el2) el2.textContent = listVisitors.length;
+  if(el3) el3.textContent = listIn;
+  if(el4) el4.textContent = listOut;
 }
 
 
@@ -1146,58 +1226,38 @@ function deleteVisitor(id){
 
 function renderTable(){
   var tbody = document.getElementById('visitor-tbody');
-  if(!visitors.length){
-    tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">등록된 방문자가 없습니다</div></div></td></tr>';
+  var listKey  = statsDateKey(listDateObj);
+  var todayKey = statsDateKey(new Date());
+  var isToday  = (listKey === todayKey);
+
+  // 날짜 라벨 업데이트
+  var days = ['일','월','화','수','목','금','토'];
+  var d = new Date(listDateObj);
+  var labelStr = d.getFullYear() + '.' + pad(d.getMonth()+1) + '.' + pad(d.getDate())
+    + ' (' + days[d.getDay()] + ')' + (isToday ? '  오늘' : '');
+  var labelEl = document.getElementById('list-date-label');
+  if(labelEl) labelEl.textContent = labelStr;
+
+  // 다음날 버튼: 오늘이면 비활성
+  var nextBtn = document.getElementById('list-date-next');
+  if(nextBtn) nextBtn.disabled = isToday;
+
+  // 해당 날짜 방문자만 — id 오름차순
+  var dayList = visitors.filter(function(v){ return v.date === listKey; })
+                        .slice().sort(function(a,b){ return a.id - b.id; });
+
+  if(!dayList.length){
+    tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">'
+      + (isToday ? '오늘 방문자가 없습니다' : '이 날짜의 방문자가 없습니다')
+      + '</div></div></td></tr>';
     return;
   }
 
-  var todayKey = statsDateKey(new Date());
-
-  // 오늘 방문자만 — 최신순
-  var todayList = visitors.filter(function(v){ return v.date === todayKey; }).slice().reverse();
-
-  // 이전 날짜 방문자 — 날짜별로 묶기
-  var pastList = visitors.filter(function(v){ return v.date !== todayKey; }).slice().reverse();
-
-  // 오늘 방문자 내 넘버링: 1부터 다시
-  var todayCounter = 1;
-
-  var rows = '';
-
-  if(todayList.length){
-    // 오늘 구분선
-    rows += '<tr class="date-separator"><td colspan="10">📅 오늘 · ' + todayKey + ' (' + todayList.length + '명)</td></tr>';
-    todayList.forEach(function(v){
-      rows += makeRow(v, todayCounter++);
-    });
-  } else {
-    rows += '<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">오늘 방문자가 없습니다</div></div></td></tr>';
-  }
-
-  if(pastList.length){
-    // 날짜별로 그룹핑
-    var groups = {};
-    var groupOrder = [];
-    pastList.forEach(function(v){
-      if(!groups[v.date]){ groups[v.date] = []; groupOrder.push(v.date); }
-      groups[v.date].push(v);
-    });
-    // 중복 날짜 제거 (reverse라 같은 날짜 여러번 들어갈 수 있음)
-    var seen = {};
-    var uniqueOrder = [];
-    groupOrder.forEach(function(d){ if(!seen[d]){ seen[d]=true; uniqueOrder.push(d); } });
-
-    uniqueOrder.forEach(function(date){
-      var grp = groups[date];
-      rows += '<tr class="date-separator"><td colspan="10">📅 ' + date + ' (' + grp.length + '명)</td></tr>';
-      grp.forEach(function(v){
-        rows += makeRow(v, null); // 과거는 원래 id 표시
-      });
-    });
-  }
-
-  tbody.innerHTML = rows;
+  tbody.innerHTML = dayList.map(function(v){
+    return makeRow(v, v.dayNum || null);
+  }).join('');
 }
+
 
 function makeRow(v, dayNum){
   var isIn = v.status === 'in';
