@@ -668,7 +668,7 @@
               <th>상태</th>
               <th>평점</th>
               <th>결과</th>
-              <th>액션</th>
+              <th>퇴장</th>
             </tr>
           </thead>
           <tbody id="visitor-tbody"></tbody>
@@ -690,6 +690,13 @@
       <span id="m-checkoutTime-wrap" style="display:none;align-items:center;gap:10px;flex:1;">
         <label style="font-size:13px;font-weight:500;color:var(--text-muted);white-space:nowrap;">🚪 퇴장 시간</label>
         <input type="time" id="m-checkoutTime" class="form-control" style="width:auto;font-family:\'DM Mono\',monospace;font-size:15px;">
+        <button onclick="deleteVisitor(editingVisitorId)" type="button" style="
+          background:transparent;border:1px solid var(--red,#e53e3e);
+          color:var(--red,#e53e3e);border-radius:var(--radius-sm);
+          padding:6px 12px;font-size:13px;font-weight:600;
+          font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;
+          white-space:nowrap;flex-shrink:0;
+        ">🗑 삭제</button>
       </span>
     </div>
 
@@ -698,7 +705,7 @@
       <div class="btn-select-group" style="flex-wrap:wrap;" id="m-staff-group">
         <button type="button" class="btn-select" onclick="selectBtn('m-staff-group',this,'정성진')">정성진</button>
         <button type="button" class="btn-select" onclick="selectBtn('m-staff-group',this,'주경돈')">주경돈</button>
-        <button type="button" class="btn-select" onclick="selectBtn('m-staff-group',this,'함수연')">함수연</button>
+        <button type="button" class="btn-select" onclick="selectBtn('m-staff-group',this,'함수현')">함수현</button>
         <button type="button" class="btn-select" onclick="selectBtn('m-staff-group',this,'김은지')">김은지</button>
         <button type="button" class="btn-select" onclick="selectBtn('m-staff-group',this,'안정우')">안정우</button>
       </div>
@@ -1228,6 +1235,9 @@ function setRating(id, val){
 function deleteVisitor(id){
   visitors = visitors.filter(function(v){ return v.id!==id; });
   saveDelete(id);
+  // 모달이 열려있으면 닫기
+  document.getElementById('info-modal').style.display = 'none';
+  editingVisitorId = null;
   renderTable();
   updateStats();
   showToast('삭제되었습니다');
@@ -1274,8 +1284,9 @@ function makeRow(v, dayNum){
   var badge = isIn
     ? '<span class="badge badge-in"><span class="badge-dot"></span>방문중</span>'
     : '<span class="badge badge-out"><span class="badge-dot"></span>퇴장</span>';
-  var actions = (isIn ? '<button class="action-btn btn-checkout" onclick="event.stopPropagation();checkout('+v.id+')">퇴장</button>' : '') +
-    '<button class="action-btn btn-del" onclick="event.stopPropagation();deleteVisitor('+v.id+')">삭제</button>';
+  var checkoutBtn = isIn
+    ? '<button class="action-btn btn-checkout" onclick="event.stopPropagation();checkout('+v.id+')">퇴장</button>'
+    : '<span style="color:var(--text-muted);font-size:12px;">—</span>';
   var ratingVal = v.rating || '';
   var ratingHtml = ratingVal
     ? '<span style="color:#F5A623;font-size:14px">' + strRepeat('★', ratingVal) + '</span>'
@@ -1303,7 +1314,7 @@ function makeRow(v, dayNum){
     +'<td>'+badge+'</td>'
     +'<td>'+ratingHtml+'</td>'
     +'<td>'+resultHtml+'</td>'
-    +'<td>'+actions+'</td>'
+    +'<td>'+checkoutBtn+'</td>'
     +'</tr>';
 }
 
